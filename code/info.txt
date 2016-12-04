@@ -1,0 +1,57 @@
+- jak pisac skrypty (pisze sie w JS troche inaczej jak w mongo shell np mamy dedykowane metody)
+https://docs.mongodb.com/manual/tutorial/write-scripts-for-the-mongo-shell/
+https://docs.mongodb.com/v3.0/tutorial/getting-started-with-the-mongo-shell/
+https://docs.mongodb.com/v3.0/reference/method/#database cala dokumentacja 
+https://docs.mongodb.com/manual/core/shell-types/ tutaj sa dedykowane typ- generowanie d.ts z kodu/dokumentacji
+- https://github.com/mongodb/mongo/tree/master/src/mongo/shell
+kod zrodlowy jest tutaj, ale nie ma dokumentacji :/
+- https://github.com/mongodb/docs/blob/master/source/reference/method/db.collection.find.txt
+ dokumentacja ktora ma linki do dokumentacji API
+- https://github.com/mongodb/docs/blob/master/source/includes/apiargs-method-db.collection.find-param.yaml
+sam opis API
+- tylko sam opis argumentow nie jest chyba zrobione w wystarczajacy sposob, np opisywane sa jakos tam argumenty metody
+ale nie jest typy zwracane, one sa np opisem "" Returns an array containing the names of all collections in the current database." jak tutaj
+ttps://github.com/mongodb/docs/blob/a1ffe539ce7431fff757539713af079baf06d400/source/reference/method/db.getCollectionNames.txt
+- tez jakis prosty opis metod mozna sobie wygenerowac w konsoli db.users.help()
+
+
+
+
+
+
+
+fajne bo:
+- mam intellise (kurde, jak te metody sie nazywaly) i typowalnosc (duzo szybciej sie pisze niz kopoiwania elementow konsoli) w mongo shell
+- mam duzy wygodniejszy REPL (bardziej SQL lub F# interactive), mam zachowany stan i moge pisac kolejne zapytania 
+- moge pisac wygodnie skrypty JS (z intellisense) ktore moge ladowac np mam prezentacje danych jako GRID
+- moge sie laczyc jednoczesniej do kilku baz danych czy wielu kolekcji 
+
+
+
+
+do pomyslenia:
+- jak generowac schemat jesli dane moga byc rozne
+-- ladne dane o takim samym schemacie
+-- dane totalnie rozne jak "configs" gdzie _id mowi cos jest
+-- dane ktore maja swoj dyskryminator i w zaleznosci od tego maja rozne grupy schematow
+-- dane ktorych czesc (pewne pola) jest zupelnie dynamiczna jak np contentItem i dla nich nie powinno sie genetowac schematu
+-- dane jak usets gdzie w zaleznosci od roli rozne sa pola dynamicznie dodawane
+- ile danych spradzac (np jesli ktos ma null to nie wywnioskujem chyba typu, chyba) 
+- czy starac sue wyliczyc opcjonalnosc pol
+- moze calosc powinna byc konfigurowana za pomoca JSON (inclide, exclude)
+- wymienny format danych opisujacych schemat JSON<---->TS (tylko ten obecny dtosSchema jest bardzo ograniczony w stosunku do TS, a moze wystarczy nie i na potrzeby mongo), 
+generowanie TS z opisu schemat JSON, byc moze taka uniwresjalnosc moglaby byc wkorzystana w F# data provider
+
+
+
+
+
+
+
+
+/// <references path="./_mongoShell.d.ts" />
+
+/// <references path="./_documents.generated.d.ts" />
+/// <references path="./_collections.d.ts" />
+/// <references path="./s.d.ts" />
+/// <references path="./s.generated.d.ts" />

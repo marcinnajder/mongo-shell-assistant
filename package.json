@@ -1,0 +1,23 @@
+{
+  "name": "mongodb-editor",
+  "version": "1.0.0",
+  "description": "",
+  "main": "script.js",
+  "dependencies": {
+    "mongodb": "^2.2.12"
+  },
+  "devDependencies": {
+    "@types/mocha": "^2.2.33",
+    "@types/mongodb": "^2.1.35",
+    "mocha": "^3.2.0",
+    "rxjs": "^5.0.0-rc.4",
+    "typescript": "^2.2.0-dev.20161123"
+  },
+  "scripts": {
+    "test": "mocha ./test -R spec --recursive --timeout 30000",
+    "watch": "tsc -p ./code/tsconfig.json -w",
+    "generate": "node ./code/generators/start.js"
+  },
+  "author": "",
+  "license": "ISC"
+}
