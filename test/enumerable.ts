@@ -161,6 +161,22 @@ describe('enumerable', function () {
             assert.deepEqual(Enumerable.from([1,2,3]).count(), 3);
             assert.deepEqual(Enumerable.from([1,2,3]).count(x => x>1), 2);
         });
+        it('distinct', function() {
+            assert.deepEqual(Enumerable.from([1,2,3,4,2,4]).distinct().toarray(), [1,2,3,4]);
+            assert.deepEqual(Enumerable.from([1,2,3,4,2,4]).distinct(x => x % 3).toarray(), [1,2,3]);
+        });
+        it('union', function() {
+            assert.deepEqual(Enumerable.from([1,2,3,4,2,4]).union([4,5,6]).toarray(), [1,2,3,4,5,6]);
+            assert.deepEqual(Enumerable.from([4,1,1,2,4]).union([1,2,3,4,5,6], x => x % 3).toarray(), [4,2,3]);
+        });
+        it('intersect', function() {
+            assert.deepEqual(Enumerable.from([1,2,3,4,2,4]).intersect([4,5,6,1]).toarray(), [4,1]);
+            assert.deepEqual(Enumerable.from([1,2,3,4,2,4]).intersect([4,6], x => x % 3).toarray(), [4,6]); 
+        });
+        it('except', function() {
+            assert.deepEqual(Enumerable.from([1,2,3,4,2,4]).except([4,5,6,1]).toarray(), [2,3]);
+            assert.deepEqual(Enumerable.from([1,2,3,4,2,4]).except([4,6], x => x % 3).toarray(), [2]);
+        });
     });
 
 });

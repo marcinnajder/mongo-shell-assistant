@@ -1,5 +1,6 @@
 // - chodzi na ES6
 // - https://github.com/ReactiveX/IxJS/tree/master/iterable
+// https://github.com/Reactive-Extensions/Rx.NET/tree/master/Ix.NET/Source/System.Interactive
 // - jak zrobic aby linq chodzilo w mongo shell ? modul UMD ? czy tam sa generatory ?
 // -- generatory i lamby dzialaja, tylko jesli piszemy modulowo ES6 kod, to kod JS sie gubi w mongo shell nie ma modulowosc
 // (pewnie jakos sprytnie trzeba wspoldzieli kod, ale miec 2 modulwosci; nalezy pamietac ze dziala JS to jedno,
@@ -32,6 +33,7 @@ export type comparer<T> = (a:T,b:T) => number;
 export type Dictionary<T> = {
     [key:string] : T;
 }
+export type keySelector<T> = (item:T)=>any;
 
 
 
@@ -677,4 +679,121 @@ declare module './enumerable' {
 Enumerable.prototype.count = function<T>(this:Enumerable<T>,predicate?:predicate<T>): number{
     return count(this, predicate);
 };
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////
+export function* distinct<T>(source:Iterable<T>, keySelector?: keySelector<T>): Iterable<T>{
+    if(typeof keySelector === "undefined"){
+        keySelector = item => item;
+    }
+    var set = new Set<any>();
+    var key;
+    for(var item of source){
+        key = keySelector(item);
+        if(!set.has(key)){
+            set.add(key);
+            yield item;
+        }
+    }
+}
+declare module './enumerable' {
+    interface Enumerable<T> {
+        distinct(keySelector?: keySelector<T>): Enumerable<T>;
+    }
+}
+Enumerable.prototype.distinct = function<T>(this:Enumerable<T>,keySelector?: keySelector<T>): Enumerable<T>{
+    return new Enumerable<T>(distinct<T>(this, keySelector));
+};
+
+//////////////////////////////////////////////////////////////////////////////////////////
+export function* union<T>(source:Iterable<T>,source2:Iterable<T>,keySelector?: keySelector<T>): Iterable<T>{
+    if(typeof keySelector === "undefined"){
+        keySelector = item => item;
+    }
+    var set = new Set<any>();
+    var key;
+    for(var item of source){
+        key = keySelector(item);
+        if(!set.has(key)){
+            set.add(key);
+            yield item;
+        }
+    }
+    for(var item of source2){
+        key = keySelector(item);
+        if(!set.has(key)){
+            set.add(key);
+            yield item;
+        }
+    }
+}
+declare module './enumerable' {
+    interface Enumerable<T> {
+        union(source2:Iterable<T>,keySelector?: keySelector<T>): Enumerable<T>;
+    }
+}
+Enumerable.prototype.union = function<T>(this:Enumerable<T>,source2:Iterable<T>,keySelector?: keySelector<T>): Enumerable<T>{
+    return new Enumerable<T>(union<T>(this,source2,keySelector));
+};
+
+//////////////////////////////////////////////////////////////////////////////////////////
+export function* intersect<T>(source:Iterable<T>,source2:Iterable<T>,keySelector?: keySelector<T>): Iterable<T>{
+    if(typeof keySelector === "undefined"){
+        keySelector = item => item;
+    }
+    var set = new Set<any>();
+    for(var s of source){
+        set.add(keySelector(s));
+    }
+    var key;
+    for(var item of source2){
+        key = keySelector(item);
+        if(set.has(key)){            
+            yield item;
+        }
+    }
+}
+declare module './enumerable' {
+    interface Enumerable<T> {
+        intersect(source2:Iterable<T>,keySelector?: keySelector<T>): Enumerable<T>;
+    }
+}
+Enumerable.prototype.intersect = function<T>(this:Enumerable<T>,source2:Iterable<T>,keySelector?: keySelector<T>): Enumerable<T>{
+    return new Enumerable<T>(intersect<T>(this,source2,keySelector));
+};
+
+
+//////////////////////////////////////////////////////////////////////////////////////////
+export function* except<T>(source:Iterable<T>,source2:Iterable<T>,keySelector?: keySelector<T>): Iterable<T>{
+    if(typeof keySelector === "undefined"){
+        keySelector = item => item;
+    }
+    var set = new Set<T>();
+    var set2 = new Set<T>();
+    var key;
+    for(var s of source2){
+        set2.add(keySelector(s));
+    }
+    for(var item of source){
+        key = keySelector(item);
+        if(!set.has(key)){
+            set.add(key);
+            if(!set2.has(key)){
+                yield item;
+            }            
+        }
+    }
+}
+declare module './enumerable' {
+    interface Enumerable<T> {
+        except(source2:Iterable<T>,keySelector?: keySelector<T>): Enumerable<T>;
+    }
+}
+Enumerable.prototype.except = function<T>(this:Enumerable<T>,source2:Iterable<T>,keySelector?: keySelector<T>): Enumerable<T>{
+    return new Enumerable<T>(except<T>(this,source2,keySelector));
+};
+
+
 

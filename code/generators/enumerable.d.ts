@@ -9,6 +9,7 @@ export declare type comparer<T> = (a: T, b: T) => number;
 export declare type Dictionary<T> = {
     [key: string]: T;
 };
+export declare type keySelector<T> = (item: T) => any;
 declare module './enumerable' {
     namespace Enumerable {
         function from<T>(iterable: Iterable<T>): Enumerable<T>;
@@ -189,6 +190,30 @@ export declare function count<T>(source: Iterable<T>, predicate?: predicate<T>):
 declare module './enumerable' {
     interface Enumerable<T> {
         count(predicate?: predicate<T>): number;
+    }
+}
+export declare function distinct<T>(source: Iterable<T>, keySelector?: keySelector<T>): Iterable<T>;
+declare module './enumerable' {
+    interface Enumerable<T> {
+        distinct(keySelector?: keySelector<T>): Enumerable<T>;
+    }
+}
+export declare function union<T>(source: Iterable<T>, source2: Iterable<T>, keySelector?: keySelector<T>): Iterable<T>;
+declare module './enumerable' {
+    interface Enumerable<T> {
+        union(source2: Iterable<T>, keySelector?: keySelector<T>): Enumerable<T>;
+    }
+}
+export declare function intersect<T>(source: Iterable<T>, source2: Iterable<T>, keySelector?: keySelector<T>): Iterable<T>;
+declare module './enumerable' {
+    interface Enumerable<T> {
+        intersect(source2: Iterable<T>, keySelector?: keySelector<T>): Enumerable<T>;
+    }
+}
+export declare function except<T>(source: Iterable<T>, source2: Iterable<T>, keySelector?: keySelector<T>): Iterable<T>;
+declare module './enumerable' {
+    interface Enumerable<T> {
+        except(source2: Iterable<T>, keySelector?: keySelector<T>): Enumerable<T>;
     }
 }
 export {};
