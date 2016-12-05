@@ -1,5 +1,5 @@
 import * as assert from "assert";
-import {Enumerable, map, flatmap} from "../code/generators/enumerable";
+import {Enumerable, map, flatmap, concat} from "../code/generators/enumerable";
 //import * as async from "async";
 
 describe('enumerable', function () {
@@ -15,20 +15,55 @@ describe('enumerable', function () {
             var result = Enumerable.from([1,2,3]);
             assert.deepEqual(result.toarray(), [1,2,3]);
         });
-
+        it('entries', function() {
+            assert.deepEqual(Enumerable.entries<number>({"a":123,"b":123123}).map(([key,value]) => key+value).toarray(), ["a123","b123123"]);
+        });
         it('empty', function() {
             var result = Enumerable.empty<number>();
             assert.deepEqual(result.toarray(), []);
+        });
+        it('of', function() {
+            var result = Enumerable.of(1,2,3,4)
+            assert.deepEqual(result.toarray(), [1,2,3,4]);
+        });
+        it('range', function() {
+            assert.deepEqual(Enumerable.range(0,2).toarray(), [0,1]);
+            assert.deepEqual(Enumerable.range(0,-2).toarray(), []);
+        });
+         it('range', function() {
+            assert.deepEqual(Enumerable.repeatvalue("a").take(5).toarray(), ["a","a","a","a","a"]);
+            assert.deepEqual(Enumerable.repeatvalue("a",0).toarray(), []);
+            assert.deepEqual(Enumerable.repeatvalue("a",3).toarray(), ["a","a","a"]);
         });
     });
 
 
     describe('operators', function () {
 
-        it('toArray', function() {
+        it('toarray', function() {
             assert.deepEqual(Enumerable.from([]).toarray(), []);
             assert.deepEqual(Enumerable.from([1,2,3]).toarray(), [1,2,3]);
             assert.deepEqual(Enumerable.from(return123()).toarray(), [1,2,3]);
+        });
+        it('tomap', function() {
+            var m1 = Enumerable.from([1,1,2]).tomap(x=>x);
+            assert.equal(m1.size,2);
+            assert.strictEqual(m1.get(1),1);
+            assert.strictEqual(m1.get(2),2);
+            var m2 = Enumerable.from([1,1,2]).tomap(x=>x, x => x.toString());
+            assert.equal(m2.size,2);
+            assert.strictEqual(m2.get(1),"1");
+            assert.strictEqual(m2.get(2),"2");
+        });
+        it('toobject', function() {
+            var o1 = Enumerable.from([1,1,2]).toobject(x=>x);
+            assert.equal(Object.keys(o1).length,2);
+            assert.strictEqual(o1[1],1);
+            assert.strictEqual(o1[2],2);
+            var o2 = Enumerable.from([1,1,2]).toobject(x=>x, x => x.toString());
+            assert.equal(Object.keys(o2).length,2);
+            assert.strictEqual(o2[1],"1");
+            assert.strictEqual(o2[2],"2");
         });
         it('map', function() {
             assert.deepEqual(Enumerable.from([1,2,3]).map(x => x+1).toarray(), [2,3,4]);
@@ -85,6 +120,46 @@ describe('enumerable', function () {
         });
         it('zip', function() {
             assert.deepEqual(Enumerable.from(["a","b","c"]).zip([1,2,3,4,5], [false,true], (s,n,b) => s+n+b).toarray(), ["a1false","b2true"]);
+        });
+        it('sort', function() {
+            assert.deepEqual(Enumerable.from(["b","c","a"]).sort(x => x).toarray(), ["a","b", "c"]);
+            assert.deepEqual(Enumerable.from(["bbb","c","aa"]).sort(x => x.length).toarray(), ["c","aa", "bbb"]);
+            var [d1,d2,d3] = [new  Date("2016-01-02"),new Date("2014-01-02"),new Date("2017-01-02")];
+            assert.deepEqual( Enumerable.from([d1,d2,d3]).sort(x => x.getTime(), (a,b) => b - a).toarray(), [d3,d1,d2]); //comparer, descending
+        });
+        it('reverse', function() {
+            assert.deepEqual(Enumerable.from(["b","c","a"]).reverse().toarray(), ["a","c", "b"]);
+        });
+        it('find', function() {
+            assert.deepEqual(Enumerable.from([1,2]).find(), 1);
+            assert.deepEqual(Enumerable.from([]).find(), undefined);
+            assert.deepEqual(Enumerable.from([1,2,3,4]).find(x => x > 2), 3);
+            assert.deepEqual(Enumerable.from([1,2,3,4]).find(x => x > 4), undefined);
+        });
+        it('findIndex', function() {
+            assert.deepEqual(Enumerable.from([1,2]).findIndex(x=> x > 0), 0);
+            assert.deepEqual(Enumerable.from([1,2]).findIndex(x=> x > 1), 1);
+            assert.deepEqual(Enumerable.from([1,2]).findIndex(x=> x > 2), undefined);
+        });
+        it('every', function() {
+            assert.deepEqual(Enumerable.from([1,2]).every(x => x > 0), true);
+            assert.deepEqual(Enumerable.from([1,2]).every(x => x > 1), false);
+        });
+        it('some', function() {
+            assert.deepEqual(Enumerable.from([1,2]).some(), true);
+            assert.deepEqual(Enumerable.from([]).some(), false);
+            assert.deepEqual(Enumerable.from([1,2]).some(x => x > 1), true);
+            assert.deepEqual(Enumerable.from([1,2]).every(x => x > 2), false);
+        });
+        it('concat', function() {
+            assert.deepEqual(Array.from(concat([1,2,3],[4,5],[6,7])), [1,2,3,4,5,6,7]);
+            assert.deepEqual(Enumerable.from([1,2,3]).concat().toarray(), [1,2,3]);
+            assert.deepEqual(Enumerable.from([1,2,3]).concat([4,5],[6,7]).toarray(), [1,2,3,4,5,6,7]);
+        });
+        it('count', function() {
+            assert.deepEqual(Enumerable.from([]).count(), 0);
+            assert.deepEqual(Enumerable.from([1,2,3]).count(), 3);
+            assert.deepEqual(Enumerable.from([1,2,3]).count(x => x>1), 2);
         });
     });
 

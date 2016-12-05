@@ -10,6 +10,14 @@
 
 
 
+// featues:
+// - leniwosc, kompatybilnosc z LINQ, IxJS
+// - mozna korzystac z samych metod osobnych
+// - mozna dodawac swoje metody
+// - mozna na stronie osadzic tylko to z czego sie faktyczne korzysta
+// - TS czyli wypowalnosc (w tym przeladowania)
+
+
 export class Enumerable<T> implements Iterable<T>{
     constructor(public _iterable:Iterable<T>){
     }
@@ -20,6 +28,14 @@ export class Enumerable<T> implements Iterable<T>{
 
 export type selector<T,TResult> = (item:T,index:number) => TResult;
 export type predicate<T> = (item:T, index:number) => boolean;
+export type comparer<T> = (a:T,b:T) => number;
+export type Dictionary<T> = {
+    [key:string] : T;
+}
+
+
+
+
 
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -30,6 +46,23 @@ declare module './enumerable' {
 }
 Enumerable.from = function<T>(iterable: Iterable<T>):Enumerable<T>{
     return new Enumerable<T>(iterable);
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////
+export function* entries<TValue>(obj) : Iterable<[string,TValue]>{
+    var keys = Object.keys(obj);
+    for(var key of keys){
+        yield [key, obj[key]];
+    }
+}
+declare module './enumerable' {
+    namespace Enumerable {
+        function entries<TValue>(obj):Enumerable<[string,TValue]>; 
+    }
+}
+Enumerable.entries = function<TValue>(obj) : Enumerable<[string,TValue]>{
+    return new Enumerable<[string,TValue]>(entries<TValue>(obj));
 }
 
 
@@ -45,6 +78,65 @@ declare module './enumerable' {
 Enumerable.empty = function <T>() : Enumerable<T>{
     return new Enumerable<T>(empty<T>());
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////
+export function* of<T>(...args:T[]) : Iterable<T>{
+    for(var item of args){
+        yield <T> item;
+    }
+}
+declare module './enumerable' {
+    namespace Enumerable {
+        export function of<T>(...args:T[]):Enumerable<T>; 
+    }
+}
+Enumerable.of = function <T>(...args:T[]) : Enumerable<T>{
+    return new Enumerable<T>(of<T>(...args));
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+export function* range<T>(start:number, count:number) : Iterable<number>{
+    let end = start + count;
+    for(var i=start; i<end; i++){
+        console.log(i);
+        yield i;
+    }
+}
+declare module './enumerable' {
+    namespace Enumerable {
+        export function range<T>(start:number, count:number) : Enumerable<number>;
+    }
+}
+Enumerable.range = function <T>(start:number, count:number) : Enumerable<number>{
+    return new Enumerable<number>(range(start, count));
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////
+export function* repeatvalue<T>(value:T, count?:number) : Iterable<T>{
+    if(typeof count === "undefined"){
+        while(true){
+            yield value;
+        }
+    }
+    else{
+        for(var i=0; i<count; i++){
+            yield value;
+        }
+    }
+}
+declare module './enumerable' {
+    namespace Enumerable {
+        export function repeatvalue<T>(value:T, count?:number) : Enumerable<T>;
+    }
+}
+Enumerable.repeatvalue = function <T>(value:T, count?:number) : Enumerable<T>{
+    return new Enumerable<T>(repeatvalue(value,count));
+}
+
+
+
+
 
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -66,6 +158,66 @@ declare module './enumerable' {
 Enumerable.prototype.toarray = function<T>(this:Enumerable<T>) {
     return toarray(this._iterable); 
 };
+
+//////////////////////////////////////////////////////////////////////////////////////////
+export function tomap<T, TKey>(source: Iterable<T>, keySelector: (item: T) => TKey): Map<TKey, T>;
+export function tomap<T, TKey, TElement>(source: Iterable<T>, keySelector: (item: T) => TKey, elementSelector: (item: T) => TElement): Map<TKey, TElement>;
+export function tomap<T, TKey, TElement>(source: Iterable<T>, keySelector: (item: T) => TKey, elementSelector?: (item: T) => TElement): Map<TKey, TElement> {
+    var map = new Map<TKey, TElement>();
+
+    if (typeof elementSelector === "undefined") {
+        for (var item of source) {
+            //if(map.has(key)) throw new TypeError("keySelector produces duplicate keys for two elements");
+            map.set(keySelector(item), <any>item);
+        }
+    }
+    else {
+        for (var item of source) {
+            map.set(keySelector(item), elementSelector(item));
+        }
+    }
+    return map;
+}
+declare module './enumerable' {
+    interface Enumerable<T> {
+       tomap<TKey>(keySelector: (item: T) => TKey): Map<TKey, T>;
+       tomap<TKey,TElement>(keySelector: (item: T) => TKey, elementSelector: (item: T) => TElement): Map<TKey, TElement>;
+    }
+}
+Enumerable.prototype.tomap = function<T, TKey, TElement>(this:Enumerable<T>, keySelector: (item: T) => TKey, elementSelector?: (item: T) => TElement): Map<TKey, TElement>{
+    return tomap(this._iterable, keySelector, elementSelector); 
+};
+
+
+//////////////////////////////////////////////////////////////////////////////////////////
+export function toobject<T>(source: Iterable<T>, keySelector: (item: T) => any): Dictionary<T>;
+export function toobject<T, TElement>(source: Iterable<T>, keySelector: (item: T) => any, elementSelector: (item: T) => TElement): Dictionary<TElement>
+export function toobject<T, TElement>(source: Iterable<T>, keySelector: (item: T) => any, elementSelector?: (item: T) => TElement): Dictionary<TElement> {
+    var map : Dictionary<TElement> = {};
+
+    if (typeof elementSelector === "undefined") {
+        for (var item of source) {
+            map[keySelector(item)] = <any>item;
+        }
+    }
+    else {
+        for (var item of source) {
+            map[keySelector(item)] = elementSelector(item);
+        }
+    }
+    return map;
+}
+declare module './enumerable' {
+    interface Enumerable<T> {
+       toobject(keySelector: (item: T) => any): Dictionary<T>;
+       toobject<TElement>(keySelector: (item: T) => any, elementSelector: (item: T) => TElement): Dictionary<TElement>;
+    }
+}
+Enumerable.prototype.toobject = function<T,TElement>(this:Enumerable<T>, keySelector: (item: T) => any, elementSelector?: (item: T) => TElement): Dictionary<TElement>{
+    return toobject(this._iterable, keySelector, elementSelector); 
+};
+
+
 
 
 
@@ -278,7 +430,6 @@ Enumerable.prototype.reduce = function<T,TAccumulate>(this: Enumerable<T>, func:
 export interface Grouping<TKey,T> extends Iterable<T> {
     key:TKey
 }
-
 export function groupby<T,TKey>(source: Iterable<T>, keySelector:(item:T) => TKey) : Iterable<Grouping<TKey,T>>;
 export function groupby<T,TKey,TResult>(source: Iterable<T>, keySelector:(item:T) => TKey, resultSelector:(key:TKey, items:Iterable<T>) => TResult) : Iterable<TResult>;
 export function* groupby<T,TKey,TResult>(source: Iterable<T>, keySelector:(item:T) => TKey, resultSelector?:(key:TKey, items:Iterable<T>) => TResult) : Iterable<TResult>{
@@ -320,12 +471,7 @@ Enumerable.prototype.groupby = function<T,TKey, TResult>(this:Enumerable<T>, key
     return new Enumerable<TResult>(groupby(this,keySelector, resultSelector)); 
 };
 
-
-
-
-
-
-
+//////////////////////////////////////////////////////////////////////////////////////////
 export function zip<T1,T2,TResult>(source1: Iterable<T1>, source2:Iterable<T2>, func: (item1:T1, item2:T2) => TResult): Iterable<TResult>;
 export function zip<T1,T2,T3,TResult>(source1: Iterable<T1>, source2:Iterable<T2>, source3:Iterable<T3>, func: (item1:T1, item2:T2,item3:T3) => TResult): Iterable<TResult>;
 export function zip<T1,T2,T3,T4,TResult>(source1: Iterable<T1>, source2:Iterable<T2>, source3:Iterable<T3>, source4:Iterable<T4>,func: (item1:T1, item2:T2,item3:T3,item4:T4) => TResult): Iterable<TResult>;
@@ -357,4 +503,178 @@ Enumerable.prototype.zip = function<T>(this:Enumerable<T>, ...args):Enumerable<a
 
 
 
+
+
+//////////////////////////////////////////////////////////////////////////////////////////
+export function* sort<T, TKey>(source:Iterable<T>, keySelector:(item:T) => TKey, comparer?: comparer<TKey>): Iterable<T>{
+    if(typeof comparer === "undefined"){
+        yield* Array.from(source).sort((a,b) => keySelector(a) < keySelector(b) ? -1 : 1);
+    }else{
+        yield* Array.from(source).sort((a,b) => comparer(keySelector(a),keySelector(b)));
+    }
+}
+declare module './enumerable' {
+    interface Enumerable<T> {
+        sort<TKey>(keySelector:(item:T) => TKey, comparer?: comparer<TKey>): Enumerable<T>;
+    }
+}
+Enumerable.prototype.sort = function<T,TKey>(this:Enumerable<T>,keySelector:(item:T) => TKey, comparer?: comparer<TKey>):Enumerable<T>{
+    return new Enumerable<T>(sort(this, keySelector, comparer));
+};
+
+
+//////////////////////////////////////////////////////////////////////////////////////////
+export function* reverse<T>(source:Iterable<T>): Iterable<T>{
+    yield* Array.from(source).reverse();
+}
+declare module './enumerable' {
+    interface Enumerable<T> {
+        reverse(): Enumerable<T>;
+    }
+}
+Enumerable.prototype.reverse = function<T>(this:Enumerable<T>):Enumerable<T>{
+    return new Enumerable<T>(reverse<T>(this));
+};
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////
+export function find<T>(source:Iterable<T>, predicate?:predicate<T>): T|undefined{
+    if(typeof predicate === "undefined"){
+        for(var item of source){
+            return item;
+        }
+    }
+    else{
+        var index = 0;
+        for(var item of source){
+            if(predicate(item, index++)){
+                return item;
+            }
+        }
+    }
+}
+declare module './enumerable' {
+    interface Enumerable<T> {
+        find(predicate?:predicate<T>): T|undefined;
+    }
+}
+Enumerable.prototype.find = function<T>(this:Enumerable<T>,predicate?:predicate<T>): T|undefined{
+    return find(this, predicate);
+};
+
+
+//////////////////////////////////////////////////////////////////////////////////////////
+export function findIndex<T>(source:Iterable<T>, predicate:predicate<T>): number|undefined{
+    var index = 0;
+    for(var item of source){
+        if(predicate(item, index)){
+            return index;
+        }
+        index++;
+    }
+}
+declare module './enumerable' {
+    interface Enumerable<T> {
+        findIndex(predicate:predicate<T>): number|undefined;
+    }
+}
+Enumerable.prototype.findIndex = function<T>(this:Enumerable<T>,predicate:predicate<T>): number|undefined{
+    return findIndex(this, predicate);
+};
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////
+export function every<T>(source:Iterable<T>, predicate:predicate<T>): boolean{
+    var index = 0;
+    for(var item of source){
+        if(!predicate(item, index++)){
+            return false;
+        }
+    }
+    return true;
+}
+declare module './enumerable' {
+    interface Enumerable<T> {
+        every(predicate:predicate<T>): boolean;
+    }
+}
+Enumerable.prototype.every = function<T>(this:Enumerable<T>,predicate:predicate<T>): boolean{
+    return every(this, predicate);
+};
+
+
+//////////////////////////////////////////////////////////////////////////////////////////
+export function some<T>(source:Iterable<T>, predicate?:predicate<T>): boolean{
+    if(typeof predicate === "undefined"){
+        for(var item of source){
+            return true;
+        }
+        return false;
+    }
+    else{
+        var index = 0;
+        for(var item of source){
+            if(predicate(item, index++)){
+                return true;
+            }
+        }
+        return false;
+    }
+}
+declare module './enumerable' {
+    interface Enumerable<T> {
+        some(predicate?:predicate<T>): boolean;
+    }
+}
+Enumerable.prototype.some = function<T>(this:Enumerable<T>,predicate?:predicate<T>): boolean{
+    return some(this, predicate);
+};
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////
+export function* concat<T>(...args:Iterable<T>[]): Iterable<T>{
+    for(var arg of args){
+        yield* arg;
+    }
+}
+declare module './enumerable' {
+    interface Enumerable<T> {
+        concat(...args:Iterable<T>[]): Enumerable<T>;
+    }
+}
+Enumerable.prototype.concat = function<T>(this:Enumerable<T>,...args:Iterable<T>[]): Enumerable<T>{
+    return new Enumerable(concat(this, ...args));
+};
+
+//////////////////////////////////////////////////////////////////////////////////////////
+export function count<T>(source:Iterable<T>, predicate?:predicate<T>): number{
+    var count = 0;
+    if(typeof predicate === "undefined"){
+        for(var item of source){
+            count++;
+        }
+        return count;
+    }
+    else{
+        var index = 0;
+        for(var item of source){
+            if(predicate(item, index++)){
+               count++;
+            }
+        }
+        return count;
+    }
+}
+declare module './enumerable' {
+    interface Enumerable<T> {
+        count(predicate?:predicate<T>): number;
+    }
+}
+Enumerable.prototype.count = function<T>(this:Enumerable<T>,predicate?:predicate<T>): number{
+    return count(this, predicate);
+};
 

@@ -5,9 +5,19 @@ export declare class Enumerable<T> implements Iterable<T> {
 }
 export declare type selector<T, TResult> = (item: T, index: number) => TResult;
 export declare type predicate<T> = (item: T, index: number) => boolean;
+export declare type comparer<T> = (a: T, b: T) => number;
+export declare type Dictionary<T> = {
+    [key: string]: T;
+};
 declare module './enumerable' {
     namespace Enumerable {
         function from<T>(iterable: Iterable<T>): Enumerable<T>;
+    }
+}
+export declare function entries<TValue>(obj: any): Iterable<[string, TValue]>;
+declare module './enumerable' {
+    namespace Enumerable {
+        function entries<TValue>(obj: any): Enumerable<[string, TValue]>;
     }
 }
 export declare function empty<T>(): Iterable<T>;
@@ -16,10 +26,44 @@ declare module './enumerable' {
         function empty<T>(): Enumerable<T>;
     }
 }
+export declare function of<T>(...args: T[]): Iterable<T>;
+declare module './enumerable' {
+    namespace Enumerable {
+        function of<T>(...args: T[]): Enumerable<T>;
+    }
+}
+export declare function range<T>(start: number, count: number): Iterable<number>;
+declare module './enumerable' {
+    namespace Enumerable {
+        function range<T>(start: number, count: number): Enumerable<number>;
+    }
+}
+export declare function repeatvalue<T>(value: T, count?: number): Iterable<T>;
+declare module './enumerable' {
+    namespace Enumerable {
+        function repeatvalue<T>(value: T, count?: number): Enumerable<T>;
+    }
+}
 export declare function toarray<T>(source: Iterable<T>): T[];
 declare module './enumerable' {
     interface Enumerable<T> {
         toarray(): T[];
+    }
+}
+export declare function tomap<T, TKey>(source: Iterable<T>, keySelector: (item: T) => TKey): Map<TKey, T>;
+export declare function tomap<T, TKey, TElement>(source: Iterable<T>, keySelector: (item: T) => TKey, elementSelector: (item: T) => TElement): Map<TKey, TElement>;
+declare module './enumerable' {
+    interface Enumerable<T> {
+        tomap<TKey>(keySelector: (item: T) => TKey): Map<TKey, T>;
+        tomap<TKey, TElement>(keySelector: (item: T) => TKey, elementSelector: (item: T) => TElement): Map<TKey, TElement>;
+    }
+}
+export declare function toobject<T>(source: Iterable<T>, keySelector: (item: T) => any): Dictionary<T>;
+export declare function toobject<T, TElement>(source: Iterable<T>, keySelector: (item: T) => any, elementSelector: (item: T) => TElement): Dictionary<TElement>;
+declare module './enumerable' {
+    interface Enumerable<T> {
+        toobject(keySelector: (item: T) => any): Dictionary<T>;
+        toobject<TElement>(keySelector: (item: T) => any, elementSelector: (item: T) => TElement): Dictionary<TElement>;
     }
 }
 export declare function map<T, TResult>(source: Iterable<T>, projection: selector<T, TResult>): Iterable<TResult>;
@@ -97,6 +141,54 @@ declare module './enumerable' {
         zip<T2, T3, T4, TResult>(source2: Iterable<T2>, source3: Iterable<T3>, source4: Iterable<T4>, func: (item1: T, item2: T2, item3: T3, item4: T4) => TResult): Enumerable<TResult>;
         zip<T2, T3, T4, T5, TResult>(source2: Iterable<T2>, source3: Iterable<T3>, source4: Iterable<T4>, source5: Iterable<T5>, func: (item1: T, item2: T2, item3: T3, item4: T4, item5: T5) => TResult): Enumerable<TResult>;
         zip(...args: any[]): any;
+    }
+}
+export declare function sort<T, TKey>(source: Iterable<T>, keySelector: (item: T) => TKey, comparer?: comparer<TKey>): Iterable<T>;
+declare module './enumerable' {
+    interface Enumerable<T> {
+        sort<TKey>(keySelector: (item: T) => TKey, comparer?: comparer<TKey>): Enumerable<T>;
+    }
+}
+export declare function reverse<T>(source: Iterable<T>): Iterable<T>;
+declare module './enumerable' {
+    interface Enumerable<T> {
+        reverse(): Enumerable<T>;
+    }
+}
+export declare function find<T>(source: Iterable<T>, predicate?: predicate<T>): T | undefined;
+declare module './enumerable' {
+    interface Enumerable<T> {
+        find(predicate?: predicate<T>): T | undefined;
+    }
+}
+export declare function findIndex<T>(source: Iterable<T>, predicate: predicate<T>): number | undefined;
+declare module './enumerable' {
+    interface Enumerable<T> {
+        findIndex(predicate: predicate<T>): number | undefined;
+    }
+}
+export declare function every<T>(source: Iterable<T>, predicate: predicate<T>): boolean;
+declare module './enumerable' {
+    interface Enumerable<T> {
+        every(predicate: predicate<T>): boolean;
+    }
+}
+export declare function some<T>(source: Iterable<T>, predicate?: predicate<T>): boolean;
+declare module './enumerable' {
+    interface Enumerable<T> {
+        some(predicate?: predicate<T>): boolean;
+    }
+}
+export declare function concat<T>(...args: Iterable<T>[]): Iterable<T>;
+declare module './enumerable' {
+    interface Enumerable<T> {
+        concat(...args: Iterable<T>[]): Enumerable<T>;
+    }
+}
+export declare function count<T>(source: Iterable<T>, predicate?: predicate<T>): number;
+declare module './enumerable' {
+    interface Enumerable<T> {
+        count(predicate?: predicate<T>): number;
     }
 }
 export {};
