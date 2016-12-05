@@ -6,6 +6,8 @@
 // ale jeszcze musi dzialac TS)
 
 
+// todo: fromObject, toObject
+
 
 
 export class Enumerable<T> implements Iterable<T>{
@@ -46,7 +48,7 @@ Enumerable.empty = function <T>() : Enumerable<T>{
 
 
 //////////////////////////////////////////////////////////////////////////////////////////
-export function toArray<T>(source: Iterable<T>) : T[]{
+export function toarray<T>(source: Iterable<T>) : T[]{
     if(Array.isArray(source)){
         return source;
     }
@@ -58,11 +60,11 @@ export function toArray<T>(source: Iterable<T>) : T[]{
 }
 declare module './enumerable' {
     interface Enumerable<T> {
-       toArray():T[]
+       toarray():T[]
     }
 }
-Enumerable.prototype.toArray = function<T>(this:Enumerable<T>) {
-    return toArray(this._iterable); 
+Enumerable.prototype.toarray = function<T>(this:Enumerable<T>) {
+    return toarray(this._iterable); 
 };
 
 
@@ -235,6 +237,123 @@ Enumerable.prototype.flatmap = function<T,TCollection, TResult>(this:Enumerable<
     return new Enumerable<TResult>(flatmap(this,collectionSelector, resultSelector)); 
 };
 
+
+//////////////////////////////////////////////////////////////////////////////////////////
+export function reduce<T>(source: Iterable<T>, func:(prev:T, item:T) => T) : T;
+export function reduce<T,TAccumulate>(source: Iterable<T>, func:(prev:TAccumulate, item:T) => TAccumulate, seed:TAccumulate) : TAccumulate;
+export function reduce<T,TAccumulate>(source: Iterable<T>, func:(prev:TAccumulate, item:T) => TAccumulate, seed?:TAccumulate) : TAccumulate{
+    var iterator = source[Symbol.iterator]();
+    var value : IteratorResult<T>;
+    var accumulator = seed;
+    var valueIsSet = typeof seed !== "undefined";
+
+    if(typeof seed === "undefined"){
+        value = iterator.next();
+        if(value.done) throw new TypeError('Sequence contains no elements')
+        accumulator = <any> value.value;
+    }
+
+    while(true){
+        value = iterator.next();
+        if(value.done) break;
+
+        accumulator = func(accumulator, value.value);
+    }
+
+    return accumulator;
+}
+
+declare module './enumerable' {
+    interface Enumerable<T> {
+        reduce(func:(prev:T, item:T) => T) : T;
+        reduce<TAccumulate>(func:(prev:TAccumulate, item:T) => TAccumulate, seed:TAccumulate) : TAccumulate;    
+    }
+}
+Enumerable.prototype.reduce = function<T,TAccumulate>(this: Enumerable<T>, func:(prev:TAccumulate, item:T) => TAccumulate, seed?:TAccumulate) : TAccumulate{
+    return reduce(this,func,seed); 
+};
+
+
+//////////////////////////////////////////////////////////////////////////////////////////
+export interface Grouping<TKey,T> extends Iterable<T> {
+    key:TKey
+}
+
+export function groupby<T,TKey>(source: Iterable<T>, keySelector:(item:T) => TKey) : Iterable<Grouping<TKey,T>>;
+export function groupby<T,TKey,TResult>(source: Iterable<T>, keySelector:(item:T) => TKey, resultSelector:(key:TKey, items:Iterable<T>) => TResult) : Iterable<TResult>;
+export function* groupby<T,TKey,TResult>(source: Iterable<T>, keySelector:(item:T) => TKey, resultSelector?:(key:TKey, items:Iterable<T>) => TResult) : Iterable<TResult>{
+    var map = new Map<TKey, T[]>();
+    var key:TKey, items:T[];
+
+    for(var item of source){
+        key = keySelector(item);
+        items = map.get(key);
+        if(typeof items === "undefined"){
+            map.set(key, [item]);
+        }else{
+            items.push(item);
+        }
+    }
+
+    if(typeof resultSelector === "undefined"){
+        for(var [entryKey, entryValue] of map.entries()){
+            yield <any> <Grouping<TKey,T>> {
+                key:entryKey,
+                [Symbol.iterator]: () => entryValue[Symbol.iterator]()
+            }
+        }
+    }
+    else{
+        for(var [entryKey, entryValue] of map.entries()){
+            yield resultSelector(entryKey, entryValue);
+        }
+    }
+}
+declare module './enumerable' {
+    interface Enumerable<T> {
+        groupby<TKey>(keySelector:(item:T) => TKey) : Enumerable<Grouping<TKey,T>>;
+        groupby<TKey,TResult>(keySelector:(item:T) => TKey, resultSelector:(key:TKey, items:Iterable<T>) => TResult) : Enumerable<TResult>;
+    
+    }
+}
+Enumerable.prototype.groupby = function<T,TKey, TResult>(this:Enumerable<T>, keySelector:(item:T) => TKey, resultSelector?:(key:TKey, items:Iterable<T>) => TResult) : Enumerable<TResult>{
+    return new Enumerable<TResult>(groupby(this,keySelector, resultSelector)); 
+};
+
+
+
+
+
+
+
+export function zip<T1,T2,TResult>(source1: Iterable<T1>, source2:Iterable<T2>, func: (item1:T1, item2:T2) => TResult): Iterable<TResult>;
+export function zip<T1,T2,T3,TResult>(source1: Iterable<T1>, source2:Iterable<T2>, source3:Iterable<T3>, func: (item1:T1, item2:T2,item3:T3) => TResult): Iterable<TResult>;
+export function zip<T1,T2,T3,T4,TResult>(source1: Iterable<T1>, source2:Iterable<T2>, source3:Iterable<T3>, source4:Iterable<T4>,func: (item1:T1, item2:T2,item3:T3,item4:T4) => TResult): Iterable<TResult>;
+export function zip<T1,T2,T3,T4,T5,TResult>(source1: Iterable<T1>, source2:Iterable<T2>, source3:Iterable<T3>, source4:Iterable<T4>, source5:Iterable<T5>,func: (item1:T1, item2:T2,item3:T3,item4:T4,item5:T5) => TResult): Iterable<TResult>;
+export function zip(...args):any;
+export function* zip<TResult>(...args): Iterable<TResult>{
+    var iterators = args.slice(0,args.length-1).map( (i:Iterable<any>) => i[Symbol.iterator]() );
+    var func : Function = args[args.length-1];
+    var values : IteratorResult<any>[];
+
+    while(true){
+        values = iterators.map( i => i.next());
+        if(values.some( x => x.done)) break;
+        yield func.apply(null, values.map(x=>x.value));
+    }
+}
+declare module './enumerable' {
+    interface Enumerable<T> {
+        zip<T2,TResult>(source2:Iterable<T2>, func: (item1:T, item2:T2) => TResult): Enumerable<TResult>;
+        zip<T2,T3,TResult>(source2:Iterable<T2>, source3:Iterable<T3>, func: (item1:T, item2:T2,item3:T3) => TResult): Enumerable<TResult>;
+        zip<T2,T3,T4,TResult>(source2:Iterable<T2>, source3:Iterable<T3>, source4:Iterable<T4>,func: (item1:T, item2:T2,item3:T3,item4:T4) => TResult): Enumerable<TResult>;
+        zip<T2,T3,T4,T5,TResult>(source2:Iterable<T2>, source3:Iterable<T3>, source4:Iterable<T4>, source5:Iterable<T5>,func: (item1:T, item2:T2,item3:T3,item4:T4,item5:T5) => TResult): Enumerable<TResult>;
+        zip(...args):any;    
+    }
+}
+Enumerable.prototype.zip = function<T>(this:Enumerable<T>, ...args):Enumerable<any>{
+    return new Enumerable<any>(zip.apply(null, [this, ...args])); 
+};
 
 
 

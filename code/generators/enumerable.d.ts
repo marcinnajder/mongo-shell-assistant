@@ -16,10 +16,10 @@ declare module './enumerable' {
         function empty<T>(): Enumerable<T>;
     }
 }
-export declare function toArray<T>(source: Iterable<T>): T[];
+export declare function toarray<T>(source: Iterable<T>): T[];
 declare module './enumerable' {
     interface Enumerable<T> {
-        toArray(): T[];
+        toarray(): T[];
     }
 }
 export declare function map<T, TResult>(source: Iterable<T>, projection: selector<T, TResult>): Iterable<TResult>;
@@ -64,6 +64,39 @@ declare module './enumerable' {
     interface Enumerable<T> {
         flatmap<TCollection>(collectionSelector: selector<T, Iterable<TCollection>>): Enumerable<TCollection>;
         flatmap<TCollection, TResult>(collectionSelector: selector<T, Iterable<TCollection>>, resultSelector: (item: T, collectionItem: TCollection) => TResult): Enumerable<TResult>;
+    }
+}
+export declare function reduce<T>(source: Iterable<T>, func: (prev: T, item: T) => T): T;
+export declare function reduce<T, TAccumulate>(source: Iterable<T>, func: (prev: TAccumulate, item: T) => TAccumulate, seed: TAccumulate): TAccumulate;
+declare module './enumerable' {
+    interface Enumerable<T> {
+        reduce(func: (prev: T, item: T) => T): T;
+        reduce<TAccumulate>(func: (prev: TAccumulate, item: T) => TAccumulate, seed: TAccumulate): TAccumulate;
+    }
+}
+export interface Grouping<TKey, T> extends Iterable<T> {
+    key: TKey;
+}
+export declare function groupby<T, TKey>(source: Iterable<T>, keySelector: (item: T) => TKey): Iterable<Grouping<TKey, T>>;
+export declare function groupby<T, TKey, TResult>(source: Iterable<T>, keySelector: (item: T) => TKey, resultSelector: (key: TKey, items: Iterable<T>) => TResult): Iterable<TResult>;
+declare module './enumerable' {
+    interface Enumerable<T> {
+        groupby<TKey>(keySelector: (item: T) => TKey): Enumerable<Grouping<TKey, T>>;
+        groupby<TKey, TResult>(keySelector: (item: T) => TKey, resultSelector: (key: TKey, items: Iterable<T>) => TResult): Enumerable<TResult>;
+    }
+}
+export declare function zip<T1, T2, TResult>(source1: Iterable<T1>, source2: Iterable<T2>, func: (item1: T1, item2: T2) => TResult): Iterable<TResult>;
+export declare function zip<T1, T2, T3, TResult>(source1: Iterable<T1>, source2: Iterable<T2>, source3: Iterable<T3>, func: (item1: T1, item2: T2, item3: T3) => TResult): Iterable<TResult>;
+export declare function zip<T1, T2, T3, T4, TResult>(source1: Iterable<T1>, source2: Iterable<T2>, source3: Iterable<T3>, source4: Iterable<T4>, func: (item1: T1, item2: T2, item3: T3, item4: T4) => TResult): Iterable<TResult>;
+export declare function zip<T1, T2, T3, T4, T5, TResult>(source1: Iterable<T1>, source2: Iterable<T2>, source3: Iterable<T3>, source4: Iterable<T4>, source5: Iterable<T5>, func: (item1: T1, item2: T2, item3: T3, item4: T4, item5: T5) => TResult): Iterable<TResult>;
+export declare function zip(...args: any[]): any;
+declare module './enumerable' {
+    interface Enumerable<T> {
+        zip<T2, TResult>(source2: Iterable<T2>, func: (item1: T, item2: T2) => TResult): Enumerable<TResult>;
+        zip<T2, T3, TResult>(source2: Iterable<T2>, source3: Iterable<T3>, func: (item1: T, item2: T2, item3: T3) => TResult): Enumerable<TResult>;
+        zip<T2, T3, T4, TResult>(source2: Iterable<T2>, source3: Iterable<T3>, source4: Iterable<T4>, func: (item1: T, item2: T2, item3: T3, item4: T4) => TResult): Enumerable<TResult>;
+        zip<T2, T3, T4, T5, TResult>(source2: Iterable<T2>, source3: Iterable<T3>, source4: Iterable<T4>, source5: Iterable<T5>, func: (item1: T, item2: T2, item3: T3, item4: T4, item5: T5) => TResult): Enumerable<TResult>;
+        zip(...args: any[]): any;
     }
 }
 export {};
