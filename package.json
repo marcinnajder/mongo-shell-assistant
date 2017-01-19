@@ -4,19 +4,24 @@
   "description": "",
   "main": "script.js",
   "dependencies": {
-    "mongodb": "^2.2.12"
+    "mongodb": "^2.2.12",
+    "powerseq": "0.0.8"
   },
   "devDependencies": {
     "@types/mocha": "^2.2.33",
     "@types/mongodb": "^2.1.35",
     "mocha": "^3.2.0",
+    "npm-run-all": "^4.0.0",
     "rxjs": "^5.0.0-rc.4",
+    "shx": "^0.2.2",
     "typescript": "^2.2.0-dev.20161123"
   },
   "scripts": {
     "test": "mocha ./test -R spec --recursive --timeout 30000",
-    "watch": "tsc -p ./code/tsconfig.json -w",
-    "generate": "node ./code/generators/start.js"
+    "watch": "tsc -w",
+    "generate": "node ./code/generators/start.js",
+    "del": "npm-run-all del-dist",
+    "del-dist": "shx rm -rf ./dist"
   },
   "author": "",
   "license": "ISC"

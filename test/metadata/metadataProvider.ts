@@ -1,17 +1,15 @@
 import * as assert from "assert";
-import { MongoClient, Binary, ObjectID, Timestamp, MinKey, MaxKey, Code } from "mongodb";
-import {parseDocument} from "../code/generators/generateSchema";
-//import * as async from "async";
+import { extractMatadata } from "../../src/metadata/metadataProvider";
 
 
+describe('metadataProvider.ts', function () {
 
-describe('generateSchema', function () {
-    
-    // before(function() {
-    //     return requiresMongoClient();
-    // });
 
-    it('should parse all primitive types', async function() {
+    it('should parse all primitive types', async function () {
+
+
+        
+
 
         // var aa = map([1,2,3], (x=>x+1));
         // for(var item of aa){
@@ -24,7 +22,7 @@ describe('generateSchema', function () {
         //     binary:new Binary(new Buffer("")),
         //     timestamp:new Timestamp(0,0),
         //     code:new Code(noop),
-  
+
         //     minKey:new MinKey(),
         //     maxKey:new MaxKey(),
 
@@ -37,7 +35,7 @@ describe('generateSchema', function () {
         //     null: null,
         // });
 
-       // console.log(a);
+        // console.log(a);
     });
 });
 

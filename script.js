@@ -1,88 +1,71 @@
+/// <reference path="./src/shell/all.d.ts" />
+/// <reference path="./dist/src/shell/s.d.ts" />
+// use reference paths manually or remove tsconfig.json to turn on intellisense
 
-load("code/s.js");
-load("code/s.generated.js");
+load("dist/src/shell/s.js");
 
-var con = new Mongo()
-var db = con.getDB("test2");
-
-db.getCollection("alltypes").insert({
-        _string:"string",
-        _binData:BinData(1,"ABCD"),
-        _timestamp:Timestamp(0,0),
-        _date:new Date(),
-        _regex: new RegExp(""),
-        _idd: ObjectId(),
-        _undefined: undefined,
-        _minKey : MinKey(),
-        _maxKey : MaxKey(),
-        _numberInt:NumberInt(),
-        _numberLong:NumberLong(),
-        _null:null,
-        _boolean: true,
-        _double: 1123.123,
-        _int__: 1123,
-        _object : {},
-        _array: [],
-        _symbol:Symbol(),
-        _dbref: DBRef,
-});
-
-var a = null;
- aa["_undefined"]  === undefined
+var con = new Mongo();
 
 
 
-var aa = db.getCollection("alltypes").findOne()
-
-
-print( aa["_array"]);
-print( aa["_symbol"]);
-
- aa["_symbol"];
-  aa["_dbref"];
-
-
-var ss  = aa._dbref;
-ss
-//for(var key of Object.keys(aa).filter(k => k === "_dbref")){
-for(var key of Object.keys(aa)){
-        print(key, aa[key]);
-}
 
 
 
-printjson( db.getCollection("alltypes").findOne() )
+
+
+
+
+// db.getCollection("alltypes").insert({
+//         _string:"string",
+//         _binData:BinData(1,"ABCD"),
+//         _timestamp:Timestamp(0,0),
+//         _date:new Date(),
+//         _regex: new RegExp(""),
+//         _idd: ObjectId(),
+//         _undefined: undefined,
+//         _minKey : MinKey(),
+//         _maxKey : MaxKey(),
+//         _numberInt:NumberInt(),
+//         _numberLong:NumberLong(),
+//         _null:null,
+//         _boolean: true,
+//         _double: 1123.123,
+//         _int__: 1123,
+//         _object : {},
+//         _array: [],
+//         _symbol:Symbol(),
+//         _dbref: DBRef,
+// });
+
+// printjson( db.getCollection("alltypes").findOne() )
 
 // JavaScript	13	“javascript”	 
 // JavaScript (with scope)	15	“javascriptWithScope”
 
-ObjectID
 
 
-dump(db.getCollection("users").find(). limit(12).sort({expirationDate:1}).toArray().map(x => ({login:x.login, name:x.name}) ))
-dump(db.getCollection("users").find(). limit(12).sort({expirationDate}).toArray().map(x => ({login:x.login, name:x.name}) ))
+// dump(db.getCollection("users").find(). limit(12).sort({expirationDate:1}).toArray().map(x => ({login:x.login, name:x.name}) ))
+// dump(db.getCollection("users").find(). limit(12).sort({expirationDate}).toArray().map(x => ({login:x.login, name:x.name}) ))
 
 
-//var user = e.usersDoc();
-
-var res = db.fake.insertMany(aa);
-
-// var db = con.getDB("ahop_prod");
-var res = db.fake.insertMany([
-        {
-                name:"marcin",
-                address:{
-                        city:"wroclaw"
-                }
-        },
-        {
-                name:"marcin",
-                address:{
-                        city:"wroclaw"
-                }
-        }
+// //var user = e.usersDoc();
+// var res = db.fake.insertMany(aa);
+// // var db = con.getDB("ahop_prod");
+// var res = db.fake.insertMany([
+//         {
+//                 name:"marcin",
+//                 address:{
+//                         city:"wroclaw"
+//                 }
+//         },
+//         {
+//                 name:"marcin",
+//                 address:{
+//                         city:"wroclaw"
+//                 }
+//         }
         
-        ]);
+//         ]);
 // dump(db.fake.find().toArray());
 
 
@@ -121,45 +104,45 @@ var res = db.fake.insertMany([
  
 // policznie ilosci conetnItemow na poszczegolych srodowuskah
 
-print("TEST");
-var db2 = con.getDB("ahop_test");
-var res2 =  db2.contentItems.find().count();
-print(res2);
+// print("TEST");
+// var db2 = con.getDB("ahop_test");
+// var res2 =  db2.contentItems.find().count();
+// print(res2);
 
-print("PROD");
-var db = con.getDB("ahop_prod");
-var res =  db.contentItems.find().count();
-print(res);
-
-
-
-// zliczenie contentItemow per typ
-var res2 =  db2.contentItems.find({},{type:1}).toArray();
-//dump(res2);
-contentItemsPerType(res2)
-
-var res =  db.contentItems.find({},{type:1}).toArray();
-//dump(res);
-contentItemsPerType(res)
+// print("PROD");
+// var db = con.getDB("ahop_prod");
+// var res =  db.contentItems.find().count();
+// print(res);
 
 
 
-function contentItemsPerType(items){
-    return  items.reduce( (p,c) => (p[c.type] = (p[c.type] || 0) +1,p) , {});
-}
+// // zliczenie contentItemow per typ
+// var res2 =  db2.contentItems.find({},{type:1}).toArray();
+// //dump(res2);
+// contentItemsPerType(res2)
+
+// var res =  db.contentItems.find({},{type:1}).toArray();
+// //dump(res);
+// contentItemsPerType(res)
 
 
-// zestawienie uslug lub lekarzy
-var citype = "service";
-var res =  db.contentItems.find({type:citype},{name:1, hisId:1}).toArray();
-dump(res);
 
-var res2 =  db2.contentItems.find({type:citype},{name:1, hisId:1}).toArray();
-dump(res2);
+// function contentItemsPerType(items){
+//     return  items.reduce( (p,c) => (p[c.type] = (p[c.type] || 0) +1,p) , {});
+// }
 
-function compareCollection(a,b){
 
-}
+// // zestawienie uslug lub lekarzy
+// var citype = "service";
+// var res =  db.contentItems.find({type:citype},{name:1, hisId:1}).toArray();
+// dump(res);
+
+// var res2 =  db2.contentItems.find({type:citype},{name:1, hisId:1}).toArray();
+// dump(res2);
+
+// function compareCollection(a,b){
+
+// }
 
 
 

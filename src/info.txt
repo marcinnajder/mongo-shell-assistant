@@ -1,3 +1,10 @@
+- extracting metada from mongo db
+-- https://github.com/variety/variety A schema analyzer for MongoDB
+
+
+
+
+
 - jak pisac skrypty (pisze sie w JS troche inaczej jak w mongo shell np mamy dedykowane metody)
 https://docs.mongodb.com/manual/tutorial/write-scripts-for-the-mongo-shell/
 https://docs.mongodb.com/v3.0/tutorial/getting-started-with-the-mongo-shell/

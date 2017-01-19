@@ -101,6 +101,8 @@ type Projection<T> = {
   $slice: number;
   $meta:"textScore"; 
 }
+// pick({name:marcin}, "marcin", "id") => 
+type z = keyof string;
 
 type Query<T> = {
     [P in keyof T ]: {

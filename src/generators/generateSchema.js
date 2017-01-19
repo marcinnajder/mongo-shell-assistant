@@ -1,55 +1,34 @@
-import { MongoClient, Binary, ObjectID, Timestamp, MinKey, MaxKey, Code } from "mongodb";
+"use strict";
+const mongodb_1 = require("mongodb");
 // /import {Observable} from "rxjs";
-
 // import { isObject } from "util";
-
-
 /**https://github.com/jashkenas/underscore/blob/master/underscore.js */
 function isObject(obj) {
     var type = typeof obj;
     return type === 'function' || type === 'object' && !!obj;
 }
-
-
-export interface DocumentSchema{
-    //[fieldName:string] : (string|string[]|DocumentSchema|DocumentSchema[]|any)[];
-    [fieldName:string] : any[];
-}
-
-var sample : DocumentSchema = {
-    "_id" : ["ObjectID"],
-    "name" : ["string"],
-    "roles" : [["string"]],
-    "adress" :
-    [
+var sample = {
+    "_id": ["ObjectID"],
+    "name": ["string"],
+    "roles": [["string"]],
+    "adress": [
         {
-            "name":["string"]
+            "name": ["string"]
         }
     ],
-}
-
-
-
-
+};
 /** zalozenie jest takie ze tutaj nie przyjdzie null */
-export function parseDocument(currentSchema: DocumentSchema, document):DocumentSchema{
-    var schema : DocumentSchema = {}
-
-    for(var key of Object.keys(document)){
+function parseDocument(currentSchema, document) {
+    var schema = {};
+    for (var key of Object.keys(document)) {
         var value = document[key];
-
-        typeResolvers.find(r => !!r(value))(value)
-
-        var resolver =  typeResolvers.find(r => !!r(value))
-        
-        console.log(key, typeResolvers.find(r => !!r(value))(value)) ;
+        typeResolvers.find(r => !!r(value))(value);
+        var resolver = typeResolvers.find(r => !!r(value));
+        console.log(key, typeResolvers.find(r => !!r(value))(value));
     }
-
     return schema;
 }
-
-
-
+exports.parseDocument = parseDocument;
 // _id ObjectId("583f3bd84bf8b2a4eb9027de")
 // _string string
 // _binData BinData(1,"ABCD")
@@ -68,38 +47,25 @@ export function parseDocument(currentSchema: DocumentSchema, document):DocumentS
 // _int__ 1123
 // _object [object BSON]
 // _array
-
-
-
 const typesNames = ["string", "boolean", "number"];
-const types = [Binary, Timestamp, Date, RegExp, MinKey, MaxKey, Code];
+const types = [mongodb_1.Binary, mongodb_1.Timestamp, Date, RegExp, mongodb_1.MinKey, mongodb_1.MaxKey, mongodb_1.Code];
 /** kolejnosc wpisow w tablicy jest wazna */
-const typeResolvers: ((v) => string)[] = [
+const typeResolvers = [
     v => v === null ? "null" : null,
     v => v === undefined ? "undefined" : null,
-    v => typesNames.find( t => typeof v === t),
-    v => v instanceof ObjectID ? "ObjectId" : null, // w driverze jest ObjectID a mongo shell jest ObjectId 
-    v => (types.find( t => v instanceof t) || <any> {}).name,
+    v => typesNames.find(t => typeof v === t),
+    v => v instanceof mongodb_1.ObjectID ? "ObjectId" : null,
+    v => (types.find(t => v instanceof t) || {}).name,
     v => Array.isArray(v) ? "__array" : null,
     v => isObject(v) ? "__object" : null,
     v => "any"
-]
-
-
-
-
+];
 // class Enumerable<T>  implements Iterable<T>
 // {
-
-
 //     constructor(private iterable: Iterable<T>){
-
 //     }
-
 //     function* map<T,TResult>(source: Iterable<T>, projection:(item:T) => TResult) : Iterable<TResult>{
-
 // }
-
 // export function map<T,TResult>(source: Iterable<T>, projection:(item:T) => TResult) : Iterable<TResult>{
 //     return {
 //         [Symbol.iterator]:  function* (){
@@ -109,24 +75,10 @@ const typeResolvers: ((v) => string)[] = [
 //         }
 //     };
 // }
-
-
-
-
-
-
-
-
 //var a = new Enumerable<string>(null). 
-
-
-
 // var url = 'mongodb://localhost:27017/test2';
-
 // MongoClient.connect(url, function (err, db) {
-
 //     var col = db.collection('alltypes');
-
 //     col.find({}).toArray(function (err, items) {
 //         var item = items[0];
 //         for(var key of Object.keys(item)){
@@ -136,40 +88,31 @@ const typeResolvers: ((v) => string)[] = [
 //         db.close();
 //     });
 // });
-
-
-
-
-
-function first<T>(iterable:Iterable<T>, predicate: (item:T) => boolean){
-    for(var item of <T[]><any>iterable){
-        if(predicate(item)){
+function first(iterable, predicate) {
+    for (var item of iterable) {
+        if (predicate(item)) {
             return item;
         }
     }
 }
-
-
-
-function entries(obj) /*: Iterable<[string,any]>*/{
+function entries(obj) {
     var keys = Object.keys(obj);
     var keysCount = keys.length;
-    var index=0;
+    var index = 0;
     var key;
-    return  {
-        [Symbol.iterator](){
+    return {
+        [Symbol.iterator]() {
             return {
                 next: () => {
-                    if(index === keysCount ) return {done:true};
+                    if (index === keysCount)
+                        return { done: true };
                     key = keys[index];
-                    return  { value: [key, obj[key] ], done:++index>keysCount};
+                    return { value: [key, obj[key]], done: ++index > keysCount };
                 }
-            }
+            };
         }
     };
 }
-
-
 function objectEntries(obj) {
     let index = 0;
     const propKeys = Reflect.ownKeys(obj);
@@ -182,89 +125,35 @@ function objectEntries(obj) {
                 const key = propKeys[index];
                 index++;
                 return { value: [key, obj[key]] };
-            } else {
+            }
+            else {
                 return { done: true };
             }
         }
     });
 }
-
-
-
-
-// // kolecja elementow i kazdy posiada dyskryminrator
-// var aaa = {
-//     hej:[
-//         {
-//             name:"string",
-//             elementType:"bla"
-//         },
-//         {
-//             name:"string",
-//             elementType:"bla123"
-//         }
-//     ]
-// }
-
-// jakie scenariusze cms2 mamy:
-// - configs - _id ktory jest dyskrymintorem
-// - entities, tickets - pole type jest dysktyminatorem, ale inne pola data przechowuje wartosci dedykowane
-// - contentItems - jedno pole jest dyskryminatorem,
-// - users - tablica rol ktora dodaje dedykowane pola  -> to pewnie mozna zwyczajcie
-// - contentItems.content - kolekcja elementow w ktorych jedno pole jest dyskryminatorem
-
-
-// uwaga: moze warto model danych i generator zrobic tak aby generowanie DTO tym obsluzyc czyli np uwzglenic, opcjonalosc, ..
-
-
-// aby format zapisywal obiekty DTO
-interface Mmmm {
-    name:string|Date|null[];
-}
-
-
-var aa : number[];
-
-
-
-
+var aa;
 var model2 = [
     {
-        name:"_id",
-
-        isOptional:false, // ?? 
+        name: "_id",
+        isOptional: false,
         types: [
-            ["string"], "bool", "null", 
+            ["string"], "bool", "null",
             [{
-                "name?": ["string", "numer"] 
-            }]
+                    "name?": ["string", "numer"]
+                }]
         ]
     }
-]
-
+];
 // interface Bum {
 //     _id:ObjectId|null|string[],
-
 // }
-
 // interface BinData{
-
 // }
-
 // interface Timestamp{
-
 // }
-
-
-
 // // BSON
-
-
-
-
 // // Type	Number	Alias	Notes
-
-
 // // Binary data	5	“binData”                       BinData
 // // Timestamp	17	“timestamp”	                    Timestamp
 // // Date	9	“date”	                                Date
@@ -278,8 +167,6 @@ var model2 = [
 // // String	2	“string”	                        string
 // // Null	10	“null”                                  null
 // // Boolean	8	“bool”	                            Boolean
-
-
 // // Double	1	“double”	 
 // // Object	3	“object”	 
 // // Array	4	“array”	 
@@ -287,14 +174,4 @@ var model2 = [
 // // JavaScript	13	“javascript”	 
 // // Symbol	14	“symbol”	Deprecated.
 // // JavaScript (with scope)	15	“javascriptWithScope”	 
-
-
-
-
-
 // // // // // // DBRef("<name>", "<id>")
-
-
-
-
-
