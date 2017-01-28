@@ -1,13 +1,7 @@
 /// <references path="./_all.d.ts" />
-
-declare var doc123;
-
 declare module e {
     function usersDoc(doc?:UserDb):UserDb;
 }
-
-
-
 
 declare class FakeDocumentDb{
     _id: ObjectId;
