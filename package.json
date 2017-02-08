@@ -4,7 +4,8 @@
   "description": "",
   "main": "script.js",
   "dependencies": {
-    "mongodb": "^2.2.12",
+    "@types/mongodb": "^2.1.37",
+    "mongodb": "^2.2.22",
     "powerseq": "0.0.8"
   },
   "devDependencies": {

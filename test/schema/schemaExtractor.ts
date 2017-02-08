@@ -2,7 +2,7 @@ import * as assert from "assert";
 import * as util from "util";
 import { Enumerable } from "powerseq";
 import { MongoClient, Binary, ObjectID, Timestamp, MinKey, MaxKey, Code } from "mongodb";
-import { extractSchema, setDefaultExtractOptions, ExtractOptions, simplifySchemaStructure, NamePropertyType } from "../../src/schema/schemaProvider";
+import { extractSchema, setDefaultExtractOptions, ExtractOptions, simplifySchemaStructure, NamePropertyType } from "../../src/schema/schemaExtractor";
 
 
 
