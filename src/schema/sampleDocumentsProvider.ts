@@ -3,6 +3,7 @@ import { Enumerable } from "powerseq";
 import { MongoClient, Collection } from "mongodb";
 import { log } from "./logger";
 
+
 import { Config, DatabaseConfig, ServerConfig, CollectionConfig } from './configuration';
 //new MongoClient().connect()
 
@@ -12,12 +13,20 @@ export interface Options {
     skipPaths?: string[];
 }
 
-export type ConfigDoc = { [serverName: string]: ServerDoc };
-export type ServerDoc = { [databasenName: string]: DatabaseDoc };
-export type DatabaseDoc = { [collectionName: string]: CollectionDoc };
-export type CollectionDoc = any | null | { [discriminator: string]: any | null };
+export type Doc = {
+    [serverName: string]: ServerDoc;
+};
+export type ServerDoc = {
+    [databasenName: string]: DatabaseDoc;
+};
+export type DatabaseDoc = {
+    [collectionName: string]: CollectionDoc;
+};
+//export type CollectionDoc = any | null | { [discriminator: string]: any | null };
+export type CollectionDoc = TOrDiscriminatedT<any | null>;
 
 
+export type TOrDiscriminatedT<T> = T | { [discriminator: string]: T };
 
 // var aaa = {
 //     "localhost:27017": {
@@ -45,7 +54,7 @@ export type CollectionDoc = any | null | { [discriminator: string]: any | null }
 // };
 
 
-export async function getDocForConfig(config: Config): Promise<ConfigDoc> {
+export async function getDoc(config: Config): Promise<Doc> {
     var result = {};
     for (let [serverName, serverConfig] of Enumerable.entries<ServerConfig>(config)) {
         let doc = await getDocForServer(serverName, serverConfig);
@@ -91,8 +100,9 @@ async function getDocForDatabase(serverName: string, databaseName: string, datab
 }
 
 async function getDocForCollection(collection: Collection, collectionConfig?: CollectionConfig): Promise<CollectionDoc> {
-    if (collectionConfig && collectionConfig.discriminator) { // get only one document for each discriminated group 
-        const discriminatorValues: any[] = await collection.distinct(collectionConfig.discriminator, {});
+    if (collectionConfig && collectionConfig.discriminator) { // get only one document for each discriminated group
+        var discriminatorValues: any[] = await collection.distinct(collectionConfig.discriminator, {});
+        discriminatorValues = discriminatorValues.filter(d => d !== null); // skip nulls
         if (discriminatorValues.length === 0) {
             return null;
         }
@@ -100,7 +110,6 @@ async function getDocForCollection(collection: Collection, collectionConfig?: Co
         log(`values of '${collection.collectionName}.${collectionConfig.discriminator}' discriminator:`, discriminatorValues.join(","));
 
         var docs = await Promise.all(discriminatorValues.map(dv => collection.find({ [collectionConfig.discriminator]: dv }).limit(1).next()));
-        //return Enumerable.from(discriminatorValues).zip(docs, (dv, doc) => ({ dv, doc })).toobject(v => v.dv, v => v.doc);
         return zipToObject(discriminatorValues, docs);
     }
 

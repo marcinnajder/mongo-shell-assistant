@@ -1,22 +1,20 @@
-export interface Config {
-    [serverAddress: string]: ServerConfig;
-}
-
-export interface ServerConfig {
-    [databaseName: string]: DatabaseConfig | [string, string];
-}
-
-export interface DatabaseConfig {
+export type Config = {
+    [serverName: string]: ServerConfig
+};
+export type ServerConfig = {
+    [databasenName: string]: DatabaseConfig | [string, string];
+};
+export type DatabaseConfig = {
+    [collectionName: string]: CollectionConfig;
     __includes?: string[];
     __excludes?: string[];
-    [collectionName: string]: CollectionConfig;
-}
-
-export interface CollectionConfig {
+};
+export type CollectionConfig = {
     discriminator?: string;
     skipPaths?: string[];
     depth?: number;
-}
+};
+
 
 export const defaultConfig: Config = {
     "localhost:27017": {

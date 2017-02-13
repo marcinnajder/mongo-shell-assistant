@@ -4,7 +4,74 @@
 
 load("dist/src/shell/s.js");
 
-var con = new Mongo();
+var mongo = new Mongo("localhost:27017");
+var db = mongo.getDB("test2");
+//var aa = db.users.findOne({}, {});
+
+
+// var collection = db.contentItems.find({}, {}).toArray();
+// for (var c of collection) {
+//         if (c.type === "page") {
+
+//         }
+// }
+
+
+
+
+
+var mongo = new Mongo("localhost:27017");
+var sampledbDatabase = mongo.getDB("sampledb");
+var multimediaCollection = sampledbDatabase.getCollection("multimedia");
+
+
+var data = multimediaCollection.find({}, {}).toArray();
+
+for (var m of data) {
+        if (m.type === "video") {
+                print(m.duration);
+        }
+        else if (m.type === "image") {
+                print(m.imageHeight);
+        }
+}
+
+
+// var multimedia = [
+//         { name: "flower.jpg", size: 100, type: "image", imageWidth: 50, imageHeight: 5 },
+//         { name: "presentation.mp4", size: 100000, type: "video", duration: 60 },
+//         { name: "mydoc.pdf", size: 150, type: "document" }
+// ];
+// multimediaCollection.insertMany(multimedia);
+
+
+// var mongo = new Mongo("localhost:27017");
+// var sampledbDatabase = mongo.getDB("sampledb");
+// var multimediaCollection = sampledbDatabase.getCollection("multimedia");
+
+// var multimedia = [
+//         { name: "flower.jpg", size: 100, type: "image", imageWidth: 50, imageHeight: 5 },
+//         { name: "presentation.mp4", size: 100000, type: "video", duration: 60 },
+//         { name: "mydoc.pdf", size: 150, type: "document" }
+// ];
+// multimediaCollection.insertMany(multimedia);
+
+
+
+
+
+
+
+
+//var con = new Mongo("1").getDB("test4").users;
+
+
+
+
+
+
+
+
 
 
 
@@ -64,7 +131,7 @@ var con = new Mongo();
 //                         city:"wroclaw"
 //                 }
 //         }
-        
+
 //         ]);
 // dump(db.fake.find().toArray());
 
@@ -101,7 +168,7 @@ var con = new Mongo();
 
 
 
- 
+
 // policznie ilosci conetnItemow na poszczegolych srodowuskah
 
 // print("TEST");
