@@ -6,7 +6,9 @@
   "dependencies": {
     "@types/mongodb": "^2.1.37",
     "mongodb": "^2.2.22",
-    "powerseq": "0.0.8"
+    "powerseq": "0.0.8",
+    "tslint": "^4.4.2",
+    "typescript": "2.2.0"
   },
   "devDependencies": {
     "@types/mocha": "^2.2.33",
@@ -14,8 +16,7 @@
     "mocha": "^3.2.0",
     "npm-run-all": "^4.0.0",
     "rxjs": "^5.0.0-rc.4",
-    "shx": "^0.2.2",
-    "typescript": "^2.2.0-dev.20161123"
+    "shx": "^0.2.2"
   },
   "scripts": {
     "test": "mocha ./dist/test -R spec --recursive --timeout 30000",

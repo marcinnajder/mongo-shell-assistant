@@ -1,7 +1,8 @@
 import { Schema, ServerSchema, DatabaseSchema, CollectionSchema } from './schemaProvider';
 import { Config, CollectionConfig } from './configuration';
-import { Property, TypePropertyType } from './schemaExtractor';
+import { Property } from './schemaExtractor';
 import { Enumerable } from 'powerseq';
+
 
 export function generateDts(schema: Schema) {
     var index = 0;
@@ -14,20 +15,28 @@ export function generateDts(schema: Schema) {
         src += generateServer(info);
 
         for (let [databaseName, databaseSchema] of Enumerable.entries<DatabaseSchema>(serverSchema)) {
-            info.databaseName = databaseName;
-            info.databaseInterfaceName = formatDatabaseInterfaceName(info);
+            const isDatabaseRef = Array.isArray(databaseSchema);
+
+            if (isDatabaseRef) {
+                const newinfo = getRefDatabaseInfo(schema, serverName, databaseName, databaseSchema[0], databaseSchema[1]);
+                if (newinfo === null) {
+                    continue; // referenced database not found, skip this database
+                }
+                info = newinfo;
+
+            } else {
+                info.databaseName = databaseName;
+                info.databaseInterfaceName = formatDatabaseInterfaceName(info);
+            }
 
             src += generateDatabase(info);
 
-            if (Array.isArray(databaseSchema)) {
-                //todo: handle database reference
-                continue;
-            }
-
-            for (let [collectionName, collectionSchema] of Enumerable.entries<CollectionSchema>(databaseSchema)) {
-                info.collectionName = collectionName;
-                info.collectionInterfaceName = formatCollectionInterfaceName(info);
-                src += generateCollection(info, collectionSchema);
+            if (!isDatabaseRef) {
+                for (let [collectionName, collectionSchema] of Enumerable.entries<CollectionSchema>(databaseSchema)) {
+                    info.collectionName = collectionName;
+                    info.collectionInterfaceName = formatCollectionInterfaceName(info);
+                    src += generateCollection(info, collectionSchema);
+                }
             }
         }
 
@@ -38,6 +47,27 @@ export function generateDts(schema: Schema) {
     return src;
 }
 
+function getRefDatabaseInfo(schema: Schema, serverName: string, databaseName: string, refServerName: string, refDatabaseName: string): Info | null {
+    const refServerSchema = schema[refServerName || null] || {};
+    const refDatabaseSchema = refServerSchema[refDatabaseName || null];
+
+    if (!refDatabaseSchema) {
+        return null;
+    }
+
+    if (Array.isArray(refDatabaseSchema)) { // reference to other database
+        return getRefDatabaseInfo(schema, serverName, databaseName, refDatabaseSchema[0], refDatabaseSchema[1]);
+    }
+
+    const info: Info = {
+        serverName: serverName,
+        serverInterfaceName: formatServerInterfaceName(serverName, Object.keys(schema).indexOf(refServerName)),
+        databaseName: refDatabaseName
+    };
+    info.databaseInterfaceName = formatDatabaseInterfaceName(info);
+    info.databaseName = databaseName;
+    return info;
+}
 
 
 function generateServer({serverName, serverInterfaceName}: Info) {
@@ -102,7 +132,7 @@ ${generateCollectionContent(flattenCollection(<any>collectionSchema))}
     else { // handle discrinated collections
         const entityNames: string[] = [];
         for (var [discrimantorValue, collectionSchema2] of Enumerable.entries<Property[] | null>(collectionSchema)) {
-            const entityName = collectionInterfaceName + discrimantorValue + "_";
+            const entityName = collectionInterfaceName + fixIdentifierName(discrimantorValue) + "_";
             entityNames.push(entityName);
 
             src += `declare interface ${entityName} {
@@ -121,6 +151,10 @@ declare type ${flattenCollectionName} = ${entityNames.length === 0 ? "any" : ent
     }
 
     return src;
+}
+
+function fixIdentifierName(name: string) {
+    return name.replace(/(-|\.)/g, '_');
 }
 
 
@@ -197,6 +231,3 @@ interface Info {
     collectionInterfaceName?: string;
     collectionName?: string;
 }
-
-
-

@@ -10,6 +10,8 @@ import { generateDts, flattenCollection } from "../../src/schema/dtsGenerator";
 
 //https://www.typescriptlang.org/docs/handbook/declaration-files/templates/module-class-d-ts.html
 
+
+
 describe('sampleDocumentProvider', function () {
 
     it('test123', async function () {
@@ -20,8 +22,8 @@ describe('sampleDocumentProvider', function () {
         var config: Config = {
             "localhost:27017": {
                 "test2": {
-
-                    __includes: [],
+                    __excludes: ["alltypes", "system.users"],
+                    //__includes: [],
                     //__includes: ["contentItems"],
 
                     //__includes: ["users", "tickets", "albums"],
@@ -42,7 +44,8 @@ describe('sampleDocumentProvider', function () {
                         discriminator: "type"
                     }
                 },
-                "test2_new": ["localhost:27017", "test2"],
+                "test2_new": ["localhost:27017", "sampledb"],
+                "test2_new2": ["localhost:27017", "test2_new"],
                 "sampledb": {
                     multimedia: {
                         discriminator: "type"

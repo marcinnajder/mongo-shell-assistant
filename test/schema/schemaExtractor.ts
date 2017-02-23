@@ -4,8 +4,6 @@ import { Enumerable } from "powerseq";
 import { MongoClient, Binary, ObjectID, Timestamp, MinKey, MaxKey, Code } from "mongodb";
 import { extractSchema, setDefaultExtractOptions, ExtractOptions, simplifySchemaStructure, NamePropertyType } from "../../src/schema/schemaExtractor";
 
-
-
 describe('schemaProvider', function () {
 
     it('should fill up options with default values', function () {

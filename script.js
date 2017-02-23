@@ -2,39 +2,103 @@
 /// <reference path="./dist/src/shell/s.d.ts" />
 // use reference paths manually or remove tsconfig.json to turn on intellisense
 
+
 load("dist/src/shell/s.js");
 
-var mongo = new Mongo("localhost:27017");
-var db = mongo.getDB("test2");
-//var aa = db.users.findOne({}, {});
+
+// var mongo = new Mongo().getDB().getUsers
+// var db = new Mongo("localhost:27017").getDB("test2").users.updateOne()
 
 
-// var collection = db.contentItems.find({}, {}).toArray();
-// for (var c of collection) {
-//         if (c.type === "page") {
 
-//         }
+
+// //db.users.find({ $or: [{ login: "admin" }, { login: "redaktor" }] }, { name: 1, login: 1 }).toArray();
+// var res = db.users.find({ $or: [{ login: "admin" }, { login: "redaktor" }] }, { name: 1, login: 1 });
+
+
+// var aaa = res.limit(1).toArray()[0];
+// aaa.login
+
+
+
+// // zapytania
+
+// var users = new Mongo("localhost:27017").getDB("test2").users.find({}, { login: 1, name: 1 }).toArray();
+
+// printjson(users);
+
+// s.dump(users);
+
+// for (var user of users) {  
+//         print(user._id, user.name);  
 // }
 
 
 
 
 
-var mongo = new Mongo("localhost:27017");
-var sampledbDatabase = mongo.getDB("sampledb");
-var multimediaCollection = sampledbDatabase.getCollection("multimedia");
+// kursory
 
+var cur = new Mongo("localhost:27017").getDB("test2").users.find({}, {});
+//(cur = cur.skip(2).limit(2), undefined)
+// cur
 
-var data = multimediaCollection.find({}, {}).toArray();
-
-for (var m of data) {
-        if (m.type === "video") {
-                print(m.duration);
-        }
-        else if (m.type === "image") {
-                print(m.imageHeight);
-        }
+var i = 0;
+while (cur.hasNext()) {
+        var doc = cur.next();
+        print(i++, doc.name);
 }
+
+cur.count(true);
+
+
+
+
+
+
+
+
+
+
+
+// while(cursor.hasNext()){
+// 	var doc = cursor.next();
+// 	if(doc.Referrer === null){
+// 		delete doc.Referrer;
+// 	}
+// 	else{
+// 		for(var j = 0; j < doc.PaymentInfos.length; j++){
+// 			doc.PaymentInfos[j].PartnerCommission = 0.2 * doc.PaymentInfos[j].Amount;
+// 		}
+// 	}
+
+// 	db.payments.save(doc);
+// }
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// var mongo = new Mongo("localhost:27017");
+// var sampledbDatabase = mongo.getDB("sampledb");
+// var multimediaCollection = sampledbDatabase.getCollection("multimedia");
+
+
+// var data = multimediaCollection.find({}, {}).toArray();
+
+// for (var m of data) {
+//         if (m.type === "video") {
+//                 print(m.duration);
+//         }
+//         else if (m.type === "image") {
+//                 print(m.imageHeight);
+//         }
+// }
 
 
 // var multimedia = [
@@ -56,6 +120,8 @@ for (var m of data) {
 // ];
 // multimediaCollection.insertMany(multimedia);
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 

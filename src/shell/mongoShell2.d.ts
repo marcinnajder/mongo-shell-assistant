@@ -15,9 +15,10 @@ declare var Mongo: Mongo;
 
 declare interface Mongo {
     /** localhost:27017 (default host address)*/
-    new (): Mongo2;
+    new (): Mongo;
     /** @param host "host:port?" */
     new (host: string): Mongo;
+
 
 
     /**
@@ -27,8 +28,6 @@ declare interface Mongo {
      * https://docs.mongodb.com/manual/reference/method/Mongo.getDB/#Mongo.getDB 
      * */
     getDB(databaseName: string): Db;
-
-    hej: string;
 }
 
 
@@ -207,6 +206,19 @@ declare interface BulkWriteResult {
     }[];
 }
 
+
+declare interface CountOptions {
+    /**The maximum number of documents to count. */
+    limit?: number;
+    /**The number of documents to skip before counting. */
+    skip?: number;
+    /** An index name hint or specification for the query. */
+    hint?: string | any;
+    /** The maximum amount of time to allow the query to run. */
+    maxTimeMS?: number;
+    /**Specifies the read concern */
+    readConcern?: ReadConcernLevels;
+}
 declare interface Collection_<T, TFlattend> extends Collection {
 
     /**
@@ -216,8 +228,6 @@ declare interface Collection_<T, TFlattend> extends Collection {
      * @param projection Specifies the fields to return using projection operators. Omit this parameter to return all fields in the matching document.
      */
     findOne(query?: Query<TFlattend>, projection?: Projection<TFlattend>): T | null;
-
-
     /**
      * Selects documents in a collection and returns a cursor to the selected documents.
      * https://docs.mongodb.com/manual/reference/method/db.collection.find/
@@ -225,7 +235,11 @@ declare interface Collection_<T, TFlattend> extends Collection {
      * @param projection Specifies the fields to return using projection operators. Omit this parameter to return all fields in the matching document.
      */
     find(query?: Query<TFlattend>, projection?: Projection<TFlattend>): Cursor_<T, TFlattend>;
-
+    /**Returns the count of documents that would match a find() query
+     * @param query The query selection criteria.
+     * @param options Extra options for modifying the count.
+     */
+    count(query: Query<TFlattend>, options?: CountOptions): number;
     /**
      * Inserts a document or documents into a collection.
      * https://docs.mongodb.com/manual/reference/method/db.collection.insert/
@@ -233,38 +247,274 @@ declare interface Collection_<T, TFlattend> extends Collection {
      */
     insert(document: T | T[], writeConcern?: InsertWriteConcernPatameter): WriteResult | BulkWriteResult;
     //insert(document:T[], writeConcern?:InsertWriteConcernPatameter):BulkWriteResult; // nie dziala wnioskowanie dla takiego zapisu
-
     /**
      * New in version 3.2.
      * https://docs.mongodb.com/manual/reference/method/db.collection.insertOne/
      * On error, insertOne() throws either a writeError or writeConcernError exception.
      */
     insertOne(document: T, writeConcern?: { writeConcern: WriteConcern }): { acknowledged: boolean; insertedId: any; };
-
     /**
      * New in version 3.2.
      * https://docs.mongodb.com/manual/reference/method/db.collection.insertMany/
      * On error, insertOne() throws either a writeError or writeConcernError exception.
      */
     insertMany(document: T[], writeConcern?: InsertWriteConcernPatameter): { acknowledged: boolean; insertedIds: any[]; };
-
-
-
+    /**Calculates aggregate values for the data in a collection.
+     * @param pipeline A sequence of data aggregation operations or stages. 
+     * @param options Optional. Additional options that aggregate() passes to the aggregate command.
+    */
+    aggregate(pipeline: AggregationPipelineOperator[], options?: AggregationOptions): Cursor_<T, TFlattend>;
+    /**Removes a single document from a collection.
+     * @param fitler Specifies deletion criteria using query operators.
+     * @param options options
+     */
+    deleteOne(filter: Query<TFlattend>, options?: DeleteOptions): DeleteResult;
+    /** Removes all documents that match the filter from a collection.
+     * @param fitler Specifies deletion criteria using query operators.
+     * @param options options
+     */
+    deleteMany(filter: Query<TFlattend>, options?: DeleteOptions): DeleteResult;
     // to projection?:Projection<T> nie chce zadzilac w miejscu gdzie z tego korzystamy, musimy podac konreny typ 
     //find(query?:Query<UserDb_Flatten>, projection?:Projection<UserDb_Flatten>) : Cursor_<T>;
+    /**Finds the distinct values for a specified field across a single collection and returns the results in an array.
+     * @param field The field for which to return distinct values.
+     * @param query A query that specifies the documents from which to retrieve the distinct values.
+     */
+    distinct(field: keyof TFlattend, filter: Query<TFlattend>, options?: ReadOptions): any[];
+    /** Returns information on the query plan for the following operations: aggregate(); count(); distinct(); find(); group(); remove(); and update() methods.*/
+    explain(verbosity: "queryPlanner" | "executionStats" | "allPlansExecution"): this;
+    /**Modifies and returns a single document. By default, the returned document does not include the modifications made on the update. To return the document with the modifications made on the update, use the new option. The findAndModify() method is a shell helper around the findAndModify command. */
+    findAndModify(param: FindAndModifyParameters<TFlattend>): T | null;
+    /** Deletes a single document based on the filter and sort criteria, returning the deleted document.*/
+    findOneAndDelete(filter: Query<TFlattend>, options?: ModificationBaseOptions<TFlattend>): T | null;
+    /**Modifies and replaces a single document based on the filter and sort criteria. 
+     *Returns either the original document or, if returnNewDocument: true, the replacement document.
+    */
+    findOneAndReplace(filter: Query<TFlattend>, replacement: any, options?: FindOneAndReplaceOptions<TFlattend>): T | null;
+    /** Updates a single document based on the filter and sort criteria.*/
+    findOneAndUpdate(filter: Query<TFlattend>, update: any, options?: FindOneAndReplaceOptions<TFlattend>): T | null;
+    /**Returns an array that holds a list of documents that identify and describe the existing indexes on the collection.  */
+    getIndexes(): any[];
+    /** Prints the data distribution statistics for a sharded collection. You must call the getShardDistribution() method on a sharded collection, as in the following example: db.myShardedCollection.getShardDistribution()*/
+    getShardDistribution(): void;
+    /**todo:*/
+    mapReduce();
+    /**Replaces a single document within the collection based on the filter. */
+    replaceOne(filter: Query<TFlattend>, replacement: any, options?: { upsert?: boolean, writeConcern?: WriteConcern, collation?: any }): {
+        acknowledged: boolean;
+        matchedCount: number;
+        modifiedCount: number;
+        upsertedId: ObjectId;
+    };
+    /**Removes documents from a collection. */
+    remove(query: Query<TFlattend>, justOne?: boolean): WriteResult;
+    remove(query: Query<TFlattend>, options?: { justOne?: boolean; writeConcern?: WriteConcern, collation?: any }): WriteResult;
+    /**
+     * Renames a collection. Provides a wrapper for the renameCollection database command.
+     * @param target The new name of the collection. Enclose the string in quotes.
+     * @param dropTarget If true, mongod drops the target of renameCollection prior to renaming the collection. The default value is false.
+     */
+    renameCollection(target: string, dropTarget?: boolean): void;
+    /**Updates an existing document or inserts a new document, depending on its document parameter. */
+    save(document: T, options: { writeConcern?: WriteConcern }): WriteResult;
+    /**Updates a single document within the collection based on the filter.*/
+    update(query: Query<TFlattend>, update: Update<TFlattend>, options: { upsert?: boolean; writeConcern: WriteConcern; collation: any; multi?: boolean; }): WriteResult;
+    /**Updates a single document within the collection based on the filter.*/
+    updateOne(query: Query<TFlattend>, update: Update<TFlattend>, options: { upsert?: boolean; writeConcern: WriteConcern; collation: any; }): WriteResult;
+    /**Updates multiple documents within the collection based on the filter.*/
+    updateMany(query: Query<TFlattend>, update: Update<TFlattend>, options: { upsert?: boolean; writeConcern: WriteConcern; collation: any; }): WriteResult;
+    /**Validates a collection. The method scans a collection’s data structures for correctness and returns a single document that describes the relationship between the logical collection and the physical representation of the data.
+     * @param full Specify true to enable a full validation and to return full statistics. MongoDB disables full validation by default because it is a potentially resource-intensive operation.
+    */
+    validate(full?: boolean): any;
 }
-declare interface Cursor {
 
+/**https://docs.mongodb.com/manual/reference/operator/update/ */
+declare type Update<TFlattened> = /*T |*/ {
+    /**The $set operator replaces the value of a field with the specified value. */
+    $set: {[P in keyof TFlattened]: any; };
+    /**The $unset operator deletes a particular field. */
+    $unset: {[P in keyof TFlattened]: ""; };
+    /**Increments the value of the field by the specified amount. */
+    $inc: {[P in keyof TFlattened]: number; };
+    /**Multiplies the value of the field by the specified amount. */
+    $mul: {[P in keyof TFlattened]: number; };
+    /**Only updates the field if the specified value is less than the existing field value. */
+    $min: {[P in keyof TFlattened]: number; };
+    /**Only updates the field if the specified value is greater than the existing field value. */
+    $max: {[P in keyof TFlattened]: number; };
+    /**The $rename operator updates the name of a field */
+    $rename: {[P in keyof TFlattened]: string; };
+    /**Sets the value of a field to current date, either as a Date or a Timestamp. */
+    $currentDate: {[P in keyof TFlattened]: true | { $type: "timestamp" | "date" }; };
+    /**Sets the value of a field if an update results in an insert of a document. Has no effect on update operations that modify existing documents. */
+    $setOnInsert: {[P in keyof TFlattened]: any; };
+
+    /**Adds elements to an array only if they do not already exist in the set. */
+    $addToSet: {[P in keyof TFlattened]: { $each: any[] }; };
+    /** Removes the first or last item of an array. */
+    $pop: {[P in keyof TFlattened]: any; };
+    /** Removes all matching values from an array. */
+    $pullAll: {[P in keyof TFlattened]: any; };
+    /** Removes all array elements that match a specified query. */
+    $pull: {[P in keyof TFlattened]: any; };
+    /**Deprecated. Adds several items to an array. */
+    $pushAll: {[P in keyof TFlattened]: any  };
+    /** Adds an item to an array. */
+    $push: {[P in keyof TFlattened]: { $each: any[]; $slice; $sort; $position; }; };
+
+    /**Performs bitwise AND, OR, and XOR updates of integer values. */
+    $bit: {[P in keyof TFlattened]: { and; or; xor; }  };
+}
+
+declare interface ModificationBaseOptions<TFlattend> {
+    /** Specifies a time limit in milliseconds for processing the operation. */
+    maxTimeMS?: number;
+    /** Specifies the collation to use for the operation. */
+    collation?: any;
+    /** Determines which document the operation modifies if the query selects multiple documents. findAndModify() modifies the first document in the sort order specified by this argument. */
+    sort?: Sorting<TFlattend>;
+}
+declare interface FindOneAndDeleteOptions<TFlattend> extends ModificationBaseOptions<TFlattend> {
+    /**To return all fields in the returned document, omit this parameter. */
+    projection?: Projection<TFlattend>;
+}
+declare interface FindAndModifyParameters<TFlattend> extends ModificationBaseOptions<TFlattend> {
+    /**The selection criteria for the modification. The query field employs the same query selectors as used in the db.collection.find() method. Although the query may match multiple documents, findAndModify() will only select one document to modify. */
+    query?: Query<TFlattend>;
+    /**Must specify either the remove or the update field. Removes the document specified in the query field. Set this to true to remove the selected document . The default is false. */
+    remove: boolean;
+    /**todo: Must specify either the remove or the update field. Performs an update of the selected document. The update field employs the same update operators or field: value specifications to modify the selected document. */
+    update: Update<TFlattend>;
+    /** When true, returns the modified document rather than the original. The findAndModify() method ignores the new option for remove operations. The default is false. */
+    new?: boolean;
+
+    fields?: Projection<TFlattend>;
+    /** Used in conjuction with the update field. When true, findAndModify() either:
+    Creates a new document if no documents match the query. For more details see upsert behavior.
+    Updates a single document that matches the query.
+    To avoid multiple upserts, ensure that the query fields are uniquely indexed.*/
+    upsert?: boolean;
+    /**  Enables db.collection.findAndModify to bypass document validation during the operation. This lets you update documents that do not meet the validation requirements.*/
+    bypassDocumentValidation?: boolean;
+    /**A document expressing the write concern. Omit to use the default write concern. */
+    writeConcern?: WriteConcern;
+}
+
+declare interface FindOneAndReplaceOptions<TFlattend> {
+    projection?: Projection<TFlattend>,
+    sort?: Sorting<TFlattend>,
+    maxTimeMS?: number
+    upsert?: any,
+    returnNewDocument?: boolean;
+    collation?: any;
+}
+
+declare interface ReadOptions {
+    collation?: any;
+}
+declare interface DeleteOptions {
+    writeConcern?: any;
+    collation?: any;
+}
+declare interface DeleteResult {
+    acknowledged: boolean;
+    deletedCount: number;
+}
+
+
+/** https://docs.mongodb.com/manual/reference/method/js-cursor/ */
+declare interface Cursor {
+    /**Returns true if the cursor has documents and can be iterated. */
+    hasNext(): boolean;
+    /**
+     * Modifies the cursor to return the number of documents in the result set rather than the documents themselves. 
+     * @param  applySkipLimit Specifies whether to consider the effects of the cursor.skip() and cursor.limit() methods in the count.
+    */
+    count(applySkipLimit?: boolean): number;
+    /**Counts the number of documents remaining in a cursor. itcount() is similar to cursor.count(), but actually executes the query on an existing iterator, exhausting its contents in the process. */
+    itcount(): number;
+    /**Instructs the server to close a cursor and free associated server resources. The server will automatically close cursors that have no remaining results, as well as cursors that have been idle for a period of time and lack the cursor.noCursorTimeout() option. */
+    close(): any;
+    /**Provides information on the query plan for the db.collection.find() method. */
+    explain(): ExplainResult; // queryPlanner by default
+    explain(verbose: "queryPlanner"): ExplainResult;
+    explain(verbose: "executionStats"): ExplainResult;
+    explain(verbose: "allPlansExecution"): ExplainResult;
+    /**returns the number of documents remaining in the current batch. */
+    objsLeftInBatch(): number;
 }
 declare interface Cursor_<T, TFlattened> extends Cursor {
+    /**Returns the next document in a cursor. */
+    next(): T;
+    /**
+     * Call the cursor.skip() method on a cursor to control where MongoDB begins returning results. This approach may be useful in implementing “paged” results.
+     */
     skip(count: number): this;
+    /**Use the limit() method on a cursor to specify the maximum number of documents the cursor will return. limit() is analogous to the LIMIT statement in a SQL database. */
     limit(count: number): this;
-    // skip(count:number):this;
-    // limit(count:number):Cursor_<T>;
-    sort(sort: Sorting<TFlattened>): this;
+    /**Specifies the order in which the query returns matching documents. You must apply sort() to the cursor before retrieving any documents from the database. 
+     * @param document A document that defines the sort order of the result set.
+    */
+    sort(document: Sorting<TFlattened>): this;
+    /**The toArray() method returns an array that contains all the documents from a cursor. The method iterates completely the cursor, loading all the documents into RAM and exhausting the cursor. */
     toArray(): T[];
+    /**Instructs the server to avoid closing a cursor automatically after a period of inactivity. */
+    noCursorTimeout(): this;
+    /**
+     * Specifies the number of documents to return in each batch of the response from the MongoDB instance. 
+     * @param size The number of documents to return per batch. Do not use a batch size of 1.
+     */
+    batchSize(size: number): this;
+    /**Adds OP_QUERY wire protocol flags, such as the tailable flag, to change the behavior of queries.
+     * @param flag OP_QUERY wire protocol flag. For the mongo shell, you can use the cursor flags listed below. For the driver-specific list, see your driver documentation.
+     */
+    addOption(flag: OptionsFlag): this;
+    /**Configures the cursor to display results in an easy-to-read format. */
+    pretty(): this;
+    /** Append the snapshot() method to a cursor to toggle the “snapshot” mode. This ensures that the query will not return a document multiple times, even if intervening write operations result in a move of the document due to the growth in document size.*/
+    snapshot(): this;
+    /**Iterates the cursor to apply a JavaScript function to each document from the cursor. 
+     * @param action A JavaScript function to apply to each document from the cursor. The <function> signature includes a single argument that is passed the current document to process.
+    */
+    forEach(action: (item: T) => void): void;
+    /**Applies function to each document visited by the cursor and collects the return values from successive application into an array.
+     * @param selector A function to apply to each document visited by the cursor.
+    */
+    map<TResult>(selector: (item: T) => TResult): TResult[];
+    /**Adds a comment field to the query. comment() associates a comment string with the find operation. This can make it easier to track a particular query in the following diagnostic outputs: The system.profile, The QUERY log component, db.currentOp()
+     * @param comment The comment to apply to the query.
+     */
+    comment(comment: string): this;
+    /**Marks the cursor as tailable. For use against a capped collection only. Using tailable against a non-capped collection will return an error.*/
+    tailable(option: { isAwaitData: boolean }): this;
 }
 
+
+/** https://docs.mongodb.com/manual/reference/explain-results */
+interface ExplainResult {
+    //todo
+}
+
+declare var DBQuery: DBQuery;
+declare interface OptionsFlag {
+}
+declare interface DBQuery {
+    Options: {
+        /**Sets the cursor not to close once the last data is received, allowing the query to continue returning data added after the initial results were exhausted. */
+        tailable: OptionsFlag;
+        /** Allows querying of a replica slave.*/
+        slaveOk: OptionsFlag;
+        /** Prevents the server from timing out idle cursors.*/
+        noTimeout: OptionsFlag;
+        /** For use with .. data:: DBQuery.Option.tailable; sets the cursor to block and await data for a while rather than returning no data. The cursor will return no data once the timeout has expired.*/
+        awaitData: OptionsFlag;
+        /** Sets the cursor to return all data returned by the query at once rather than splitting the results into batches.*/
+        exhaust: OptionsFlag;
+        /** Sets the cursor to return partial data from a query against a sharded cluster in which some shards do not respond rather than throwing an error.*/
+        partial: OptionsFlag;
+    }
+}
 
 
 
@@ -285,9 +535,105 @@ declare class ObjectId {
 }
 
 
+declare type ReadConcernLevels = "local" | "majority" | "linearizable";
+
+// todo
+/**https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline/ */
+declare type AggregationPipelineOperator =
+    {
+        "$collStats"?: any;
+        "$project"?: any;
+        "$match"?: any;
+        "$redact"?: any;
+        "$limit"?: number;
+        "$skip"?: number;
+        "$unwind"?: any;
+        "$group"?: any;
+        "$sample"?: any;
+        "$sort"?: any;
+        "$geoNear"?: any;
+        "$lookup"?: any;
+        "$out"?: any;
+        "$indexStatus"?: any;
+        "$facet"?: any;
+        "$bucket"?: any;
+        "$bucketAuto"?: any;
+        "$sortByCount"?: any;
+        "$addFields"?: any;
+        "$replaceRoot"?: any;
+        "$count"?: any;
+        "$graphLookup"?: any
+    };
+// { "$collStats": any;
+// { "$project": any } |
+// { "$match": any } |
+// { "$redact": any } |
+// { "$limit": number } |
+// { "$skip": number } |
+// { "$unwind": any } |
+// { "$group": any } |
+// { "$sample": any } |
+// { "$sort": any } |
+// { "$geoNear": any } |
+// { "$lookup": any } |
+// { "$out": any } |
+// { "$indexStatus": any } |
+// { "$facet": any } |
+// { "$bucket": any } |
+// { "$bucketAuto": any } |
+// { "$sortByCount": any } |
+// { "$addFields": any } |
+// { "$replaceRoot": any } |
+// { "$count": any } |
+// { "$graphLookup": any };
+
+
+declare interface AggregationOptions {
+    /** Specifies to return the information on the processing of the pipeline.*/
+    explain?: boolean;
+    /** Enables writing to temporary files. When set to true, aggregation operations can write data to the _tmp subdirectory in the dbPath directory*/
+    allowDiskUse?: boolean;
+    /** Specifies the initial batch size for the cursor. The value of the cursor field is a document with the field batchSize*/
+    cursor?: any;
+    /** Available only if you specify the $out aggregation operator. Enables db.collection.aggregate to bypass document validation during the operation. This lets you insert documents that do not meet the validation requirements.*/
+    bypassDocumentValidation?: boolean;
+    /**Specifies the read concern.  */
+    readConcern?: {
+        level: ReadConcernLevels;
+    };
+    /**Specifies the collation to use for the operation. */
+    collation?: any; // todo
+}
 
 declare interface Collection {
-    count(): number;
+    /**todo */
+    bulkWrite();    //todo
+    /**Copies all documents from collection into newCollection using server-side JavaScript. If newCollection does not exist, MongoDB creates it. */
+    copyTo(newCollection: string): number;
+    /**todo */
+    createIndex();
+    /** The size of the collection. This method provides a wrapper around the size output of the collStats (i.e. db.collection.stats()) command.*/
+    dataSize(): number;
+    /**Removes a collection or view from the database. The method also removes any indexes associated with the dropped collection. The method provides a wrapper around the drop command. */
+    drop(): boolean;
+    /**Drops or removes the specified index from a collection */
+    dropIndex(index: string | any): void;
+    /**Drops all indexes other than the required index on the _id field. Only call dropIndexes() as a method on a collection object. */
+    dropIndexes(): void;
+    /**todo */
+    ensureIndexes(keys, options): void;
+    /**Returns true if the collection is a capped collection, otherwise returns false. */
+    isCapped(): boolean;
+    /** The db.collection.reIndex() drops all indexes on a collection and recreates them. This operation may be expensive for collections that have a large amount of data and/or a large number of indexes.*/
+    reIndex(): void;
+    /**todo */
+    stats();
+    /**The total amount of storage allocated to this collection for document storage. Provides a wrapper around the storageSize field of the collStats (i.e. db.collection.stats()) output. */
+    storageSize(): number;
+    /**The total size in bytes of the data in the collection plus the size of every indexes on the collection. */
+    totalSize(): number;
+    /**The total size of all indexes for the collection. This method provides a wrapper around the totalIndexSize output of the collStats (i.e. db.collection.stats()) operation. */
+    totalIndexSize(): number;
 }
 declare interface DatabasesInfo {
     databases: {
@@ -298,6 +644,8 @@ declare interface DatabasesInfo {
     totalSize: number;
     ok: number;
 }
+
+
 
 
 // declare interface MongoInterface{
