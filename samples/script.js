@@ -1,9 +1,21 @@
-/// <reference path="./src/shell/all.d.ts" />
-/// <reference path="./dist/src/shell/s.d.ts" />
+/// <reference path="./../src/mongoShell.d.ts" />
+/// <reference path="./msa.metadata.d.ts" />
+/// <reference path="./../dist/src/s.d.ts" />
+
+
 // use reference paths manually or remove tsconfig.json to turn on intellisense
 
+var users = [
+        { login: "john", roles: ["admin"] },
+        { login: "steve", roles: ["editor"] },
+];
 
-load("dist/src/shell/s.js");
+
+load("dist/src/s.js");
+
+
+var data = new Mongo("localhost:27017").getDB("test2").users.find({}, { "name": 1 }).count();
+print(s.dump(data));
 
 
 // var mongo = new Mongo().getDB().getUsers
@@ -37,8 +49,9 @@ load("dist/src/shell/s.js");
 
 
 
-// kursory
+//var cur = new Mongo("").getDB("test2").users.find({}, {});
 
+// kursory
 var cur = new Mongo("localhost:27017").getDB("test2").users.find({}, {});
 //(cur = cur.skip(2).limit(2), undefined)
 // cur

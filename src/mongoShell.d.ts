@@ -42,10 +42,25 @@ declare interface Db {
     getCollection(name: string): Collection_<any, any>;
 
     /**
+     * Copies a remote database to the current database. The command assumes that the remote database has the same name as the current database.
+     * @param hostname 	The hostname of the database to copy.
+     */
+    cloneDatabase(hostname: string): void;
+    /**
      * Removes the current database, deleting the associated data files.
      * https://docs.mongodb.com/manual/reference/method/db.dropDatabase/#db.dropDatabase 
      */
     dropDatabase(): void;
+    /**
+     * Displays help text for the specified database command. See the Database Commands. 
+     * @param command The name of a database command.
+    */
+    commandHelp(command: string): void;
+    /** *Copies a database to another database on the current host. Wraps copydb. */
+    copyDatabase(fromdb: string, todb: string, fromhost?: string, username?: string, password?: string, mechanism?: string): void;
+
+    /**Creates a new collection. Commonly used to create a capped collection. */
+    createCollection(name: string, options?: CreateCollectionOptions): WriteResult;
 
     /**
      * Returns the name of the current database.
@@ -92,6 +107,20 @@ declare interface Db {
     //    cursor.next();
     // }
 }
+
+
+interface CreateCollectionOptions {
+    capped?: boolean;
+    autoIndexId?: boolean;
+    size?: number;
+    max?: number;
+    storageEngine?: any;
+    validator?: any;
+    validationLevel?: "off" | "strict" | "moderate";
+    validationAction?: "error" | "warn";
+    indexOptionDefaults?: any;
+}
+
 
 type Projection<T> = {
     [P in keyof T]: boolean | 1 | 0;

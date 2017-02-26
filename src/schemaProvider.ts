@@ -1,8 +1,7 @@
 import { Enumerable, find } from "powerseq";
 import { Config, ServerConfig, DatabaseConfig, CollectionConfig } from "./configuration";
 import { TOrDiscriminatedT, Doc, ServerDoc, DatabaseDoc, CollectionDoc } from "./sampleDocumentsProvider";
-import { Property, extractSchema, TypePropertyType } from "./schemaExtractor";
-
+import { Property, extractSchema, TypePropertyType } from "./objectSchemaExtractor";
 
 export type Schema = {
     [serverName: string]: ServerSchema;
@@ -13,11 +12,11 @@ export type ServerSchema = {
 export type DatabaseSchema = {
     [collectionName: string]: CollectionSchema;
 };
-//export type CollectionSchema = Property[] | null | { [discriminator: string]: Property[] | null };
+// export type CollectionSchema = Property[] | null | { [discriminator: string]: Property[] | null };
 export type CollectionSchema = TOrDiscriminatedT<Property[] | null>;
 
 export function getSchema(config: Config, doc: Doc) {
-    var schema: Schema = {};
+    let schema: Schema = {};
 
     for (let [serverName, serverConfig] of Enumerable.entries<ServerConfig>(config)) {
         const serverDoc: ServerDoc = doc[serverName];
@@ -47,7 +46,7 @@ export function getSchema(config: Config, doc: Doc) {
                             ([discriminatorValue, collectionDoc]) => discriminatorValue,
                             ([discriminatorValue, collectionDoc]) => setDiscriminatorValueAsType(extractSchema(collectionDoc), collectionConfig.discriminator, discriminatorValue));
                     } else {
-                        databaseSchema[collectionName] = extractSchema(collectionDoc); //todo: pass options
+                        databaseSchema[collectionName] = extractSchema(collectionDoc); // todo: pass options
                     }
                 }
             }
@@ -59,20 +58,20 @@ export function getSchema(config: Config, doc: Doc) {
     return schema;
 }
 
-//UT
+// UT
 export function setDiscriminatorValueAsType(schema: Property[], discriminator: string, discriminatorValue): Property[] {
-    var discriminatorParts = discriminator.split(".");
+    let discriminatorParts = discriminator.split(".");
     replace(schema, 0);
     return schema;
 
     function replace(properties: Property[], partIndex: number) {
-        if (partIndex == discriminatorParts.length - 1) {   //  level containing discriminator property
+        if (partIndex === discriminatorParts.length - 1) {   //  level containing discriminator property
             const lastPropertyName = discriminatorParts[discriminatorParts.length - 1];
             const discriminatorProperty = find(properties, pp => pp.propertyName === lastPropertyName);
             if (discriminatorProperty) {
                 discriminatorProperty.types = [{
                     typeKind: "value",
-                    typeValue: [typeof discriminatorValue === "string" ? '"' + discriminatorValue + '"' : discriminatorValue.toString()]
+                    typeValue: [typeof discriminatorValue === "string" ? "\"" + discriminatorValue + "\"" : discriminatorValue.toString()]
                 }];
             }
         } else {
@@ -86,45 +85,4 @@ export function setDiscriminatorValueAsType(schema: Property[], discriminator: s
             }
         }
     }
-}
-
-
-
-
-var aaa = {
-    "localhost:27017": {
-        "test": {
-            "users": [
-                {
-                    "propertyName": "_id",
-                    "types": [
-                        {
-                            "typeKind": "name",
-                            "typeName": "ObjectID"
-                        }
-                    ]
-                },
-                {
-                    "propertyName": "name",
-                    "types": [
-                        {
-                            "typeKind": "name",
-                            "typeName": "string"
-                        }
-                    ]
-                }
-            ]
-            ,
-            "contentItems": {
-                "page": [
-
-                ]
-                ,
-                "article": [
-
-                ]
-            }
-        }
-    }
-
 }

@@ -1,14 +1,6 @@
 import { MongoClient, Binary, ObjectID, Timestamp, MinKey, MaxKey, Code } from "mongodb";
 import { Enumerable } from "powerseq";
-import * as assert from "assert";
-
-
-
-//var a : number | string & Date;
-
-//  todo:  tutaj uwzglenic & i OR dla "types"", da sie var a : number | string & Date; 
-// ciekawe co to znacza
-
+import { Dictionary } from "powerseq/common/types";
 
 export interface Type {
     typeName?: string;
@@ -20,7 +12,8 @@ export interface Property {
     propertyName: string;
     //isOptional?: boolean;
     //isReadonly?: boolean;
-    types: PropertyType[]
+    types: PropertyType[];
+    // todo: now only OR semantics between types is supported, consider support for AND
 }
 
 export type PropertyType = NamePropertyType | ValuePropertyType | TypePropertyType;
@@ -54,7 +47,6 @@ export interface ExtractOptions {
 
 export function extractSchema(obj, options?: ExtractOptions): Property[] {
     options = setDefaultExtractOptions(options);
-
     return extractObjectSchema(obj, options, 1, "");
 }
 
@@ -87,7 +79,7 @@ export function setDefaultExtractOptions(options: ExtractOptions) {
     return { ...defaultOptions, ...options };
 }
 
-
+// UT
 export function simplifySchemaStructure(schema: Property[]): Dictionary<string | any> {
     return Enumerable.from(schema).toobject(
         p => p.propertyName,
@@ -184,8 +176,6 @@ function extractObjectSchema(obj, options: ExtractOptions, currentDepth: number,
 
 
 
-
-
 /**https://github.com/jashkenas/underscore/blob/master/underscore.js */
 function isObject(obj) {
     var type = typeof obj;
@@ -199,91 +189,3 @@ function isUndefined(obj) {
 function isNull(obj) {
     return obj === null;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// interface Album {
-//     _id: ObjectId,
-//     name: string;
-//     tracks: {
-//         trackName: string;
-//         duration: number;
-//     }[];
-//     hej: "asd" | "asdads"
-
-// }
-
-
-// var eee: Type[] = [
-//     {
-//         typeName: "Album",
-//         properties: [
-//             {
-
-//                 propertyName: "_id",
-//                 isOptional: false,
-//                 types: [
-//                     {
-//                         typeKind: "name", // value,  
-//                         typeName: "ObjectId",
-//                         isArray: false,
-//                     }
-//                 ]
-//             },
-//             {
-//                 propertyName: "name",
-//                 types: [
-//                     {
-//                         typeKind: "name",
-//                         typeName: "string"
-//                     }
-//                 ]
-//             },
-//             {
-//                 propertyName: "tracks",
-//                 types: [
-//                     {
-//                         typeKind: "type",
-//                         typeType: {
-//                             properties: [
-//                                 {
-//                                     propertyName: "tracks",
-//                                     types: [
-//                                         {
-//                                             typeKind: "name",
-//                                             typeName: "string"
-//                                         },
-//                                     ]
-//                                 },
-//                                 {
-//                                     propertyName: "duration",
-//                                     types: [
-//                                         {
-//                                             typeKind: "name",
-//                                             typeName: "number"
-//                                         },
-//                                     ]
-//                                 },],
-//                         },
-//                         isArray: true
-
-//                     }
-//                 ],
-//             },
-//         ]
-//     }
-// ]

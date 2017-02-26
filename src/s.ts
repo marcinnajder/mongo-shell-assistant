@@ -1,11 +1,10 @@
-//import * as path from "path";
-
+// import * as path from "path";
 namespace s {
     var maxColumnWidth = 30;
     var spaces = "                                                         ";
     var nl = "\n";
 
-    //Overload signatures must all be ambient or non-ambient.
+    // Overload signatures must all be ambient or non-ambient.
     export function dump(data) {
         var keys, value, headers = {};
         var str = "";

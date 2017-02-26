@@ -1,8 +1,10 @@
+// todo: dla userow trzeba pobrac wiecej elementow ale dobrac sie do profili, tylko ile i ktorych?? moze mozliwosc wskazania pol ktore dokumento musi posiadac np containsFields = ["patientProfile", "doctorPofile"] ... moze jakos odawa filtr ale ile elemento minimalnie brac ?
+
 - extracting metada from mongo db
 -- https://github.com/variety/variety A schema analyzer for MongoDB
 
 
-
+// https://www.typescriptlang.org/docs/handbook/declaration-files/templates/module-class-d-ts.html
 
 
 - jak pisac skrypty (pisze sie w JS troche inaczej jak w mongo shell np mamy dedykowane metody)

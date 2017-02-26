@@ -11,8 +11,8 @@ export type DatabaseConfig = {
 };
 export type CollectionConfig = {
     discriminator?: string;
-    skipPaths?: string[];
-    depth?: number;
+    // skipPaths?: string[];
+    // depth?: number;
 };
 
 

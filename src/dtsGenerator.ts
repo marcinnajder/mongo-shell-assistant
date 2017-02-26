@@ -1,13 +1,12 @@
-import { Schema, ServerSchema, DatabaseSchema, CollectionSchema } from './schemaProvider';
-import { Config, CollectionConfig } from './configuration';
-import { Property } from './schemaExtractor';
-import { Enumerable } from 'powerseq';
-
+import { Schema, ServerSchema, DatabaseSchema, CollectionSchema } from "./schemaProvider";
+import { Config, CollectionConfig } from "./configuration";
+import { Property, TypePropertyType } from "./objectSchemaExtractor";
+import { Enumerable } from "powerseq";
 
 export function generateDts(schema: Schema) {
-    var index = 0;
-    var src = "";
-    var info: Info = {};
+    let index = 0;
+    let src = "";
+    let info: Info = {};
 
     for (let [serverName, serverSchema] of Enumerable.entries<ServerSchema>(schema)) {
         info.serverName = serverName;
@@ -43,7 +42,6 @@ export function generateDts(schema: Schema) {
         index++;
     }
 
-
     return src;
 }
 
@@ -71,7 +69,7 @@ function getRefDatabaseInfo(schema: Schema, serverName: string, databaseName: st
 
 
 function generateServer({serverName, serverInterfaceName}: Info) {
-    var src = `// ${serverName} 
+    let src = `// ${serverName} 
 declare interface Mongo {
     new (host: "${serverName}"): ${serverInterfaceName};
 }
@@ -93,8 +91,8 @@ function formatCollectionInterfaceName({databaseInterfaceName, collectionName}: 
 
 
 function generateDatabase({serverInterfaceName, serverName, databaseInterfaceName, databaseName}: Info) {
-    var baseDatabaseName = `${serverInterfaceName}_BaseDb`;
-    var src = `// ${serverName} -> ${databaseName}
+    let baseDatabaseName = `${serverInterfaceName}_BaseDb`;
+    let src = `// ${serverName} -> ${databaseName}
 declare interface ${baseDatabaseName} extends Db {
     getSiblingDB(database: "${databaseName}"): ${databaseInterfaceName};
 }
@@ -111,9 +109,9 @@ declare interface ${databaseInterfaceName} extends ${baseDatabaseName} {
 
 function generateCollection({serverName, databaseInterfaceName, databaseName, collectionInterfaceName, collectionName}: Info,
     collectionSchema: CollectionSchema) {
-    var flattenName = s => `${s}Flatten`;
-    var flattenCollectionName = flattenName(collectionInterfaceName);
-    var src = `// ${serverName} -> ${databaseName} -> ${collectionName}
+    let flattenName = s => `${s}Flatten`;
+    let flattenCollectionName = flattenName(collectionInterfaceName);
+    let src = `// ${serverName} -> ${databaseName} -> ${collectionName}
 declare interface ${databaseInterfaceName}  {
     ${collectionName}: Collection_<${collectionInterfaceName}, ${flattenCollectionName}>;
     getCollection(name: "${collectionName}"): Collection_<${collectionInterfaceName}, ${flattenCollectionName}>;
@@ -131,7 +129,7 @@ ${generateCollectionContent(flattenCollection(<any>collectionSchema))}
     }
     else { // handle discrinated collections
         const entityNames: string[] = [];
-        for (var [discrimantorValue, collectionSchema2] of Enumerable.entries<Property[] | null>(collectionSchema)) {
+        for (let [discrimantorValue, collectionSchema2] of Enumerable.entries<Property[] | null>(collectionSchema)) {
             const entityName = collectionInterfaceName + fixIdentifierName(discrimantorValue) + "_";
             entityNames.push(entityName);
 
@@ -154,16 +152,16 @@ declare type ${flattenCollectionName} = ${entityNames.length === 0 ? "any" : ent
 }
 
 function fixIdentifierName(name: string) {
-    return name.replace(/(-|\.)/g, '_');
+    return name.replace(/(-|\.)/g, "_");
 }
 
 
 function generateCollectionContent(schema: Property[] | null) {
     if (!schema) return "";
 
-    var src = "";
-    for (var property of schema) {
-        src += `    ${property.propertyName.indexOf(".") !== -1 ? '"' + property.propertyName + '"' : property.propertyName} : ${generatePropertyType(property)}`;
+    let src = "";
+    for (let property of schema) {
+        src += `    ${property.propertyName.indexOf(".") !== -1 ? "\"" + property.propertyName + "\"" : property.propertyName} : ${generatePropertyType(property)}`;
     }
     return src;
 }
@@ -171,14 +169,14 @@ function generateCollectionContent(schema: Property[] | null) {
 
 
 function generatePropertyType(property: Property) {
-    var src = "";
-    var propertiesOfType: TypePropertyType[] = <any>property.types.filter(p => p.typeKind === "type");
-    var propertiesOfNonType = property.types.filter(p => p.typeKind !== "type");
+    let src = "";
+    let propertiesOfType: TypePropertyType[] = <any>property.types.filter(p => p.typeKind === "type");
+    let propertiesOfNonType = property.types.filter(p => p.typeKind !== "type");
 
     if (propertiesOfNonType.length > 0) {
-        var propertiesOfNonType_typesstr = propertiesOfNonType
+        let propertiesOfNonType_typesstr = propertiesOfNonType
             .map(t => {
-                var tt = t.typeKind === "name" ? t.typeName : (t.typeKind === "value" ? (t.typeValue).join("|") : "");
+                let tt = t.typeKind === "name" ? t.typeName : (t.typeKind === "value" ? (t.typeValue).join("|") : "");
                 return `${tt}${t.isArray ? "[]" : ""}`;
             })
             .join("|");
@@ -188,7 +186,7 @@ function generatePropertyType(property: Property) {
 
     }
 
-    for (var t of propertiesOfType) {
+    for (let t of propertiesOfType) {
         src += `${propertiesOfNonType.length > 0 ? "|" : ""}
 {
 ${generateCollectionContent(t.typeType.properties)}
@@ -196,7 +194,7 @@ ${generateCollectionContent(t.typeType.properties)}
 `;
     }
 
-    //src += ";"
+    // src += ";"
     return src || `any
 `;
 }
@@ -215,7 +213,7 @@ export function flattenCollection(schema: Property[] | null) {
                 types: p.types.filter(pp => pp.typeKind !== "type")
             };
 
-            var firstType: TypePropertyType = <any>Enumerable.from(p.types).find(pp => pp.typeKind === "type");
+            let firstType: TypePropertyType = <any>Enumerable.from(p.types).find(pp => pp.typeKind === "type");
             if (firstType) {
                 yield* flatten(firstType.typeType.properties, propertyName);
             }
