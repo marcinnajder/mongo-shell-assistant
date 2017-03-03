@@ -1,18 +1,16 @@
 {
   "name": "mongo-shell-assistant",
-  "version": "1.0.0",
-  "description": "",
-  "main": "script.js",
+  "version": "0.0.1",
+  "description": "Assists in writing mongo shell scripts.",
   "dependencies": {
-    "@types/mongodb": "^2.1.37",
     "mongodb": "^2.2.22",
-    "powerseq": "0.0.8",
-    "tslint": "^4.4.2",
-    "typescript": "2.2.0"
+    "powerseq": "0.0.8"
   },
   "devDependencies": {
     "@types/mocha": "^2.2.33",
-    "@types/mongodb": "^2.1.35",
+    "@types/mongodb": "^2.1.37",
+    "typescript": "2.2.0",
+    "tslint": "^4.4.2",
     "mocha": "^3.2.0",
     "npm-run-all": "^4.0.0",
     "rxjs": "^5.0.0-rc.4",
@@ -21,10 +19,19 @@
   "scripts": {
     "test": "mocha ./dist/test -R spec --recursive --timeout 30000",
     "watch": "tsc -w",
-    "generate": "node ./code/generators/start.js",
-    "del": "npm-run-all del-dist",
-    "del-dist": "shx rm -rf ./dist"
+    "tsc": "tsc",
+    "del": "npm-run-all del-dist del-npmpackage",
+    "del-dist": "shx rm -rf ./dist",
+    "del-npmpackage": "shx rm -rf ./npmpackage",
+    "rebuild": "npm-run-all del tsc",
+    "copy-src-npmpackage": "mkdirp ./npmpackage/src/ && shx cp -r ./src/* ./npmpackage/src",
+    "copy-compiled-src-npmpackage": "mkdirp ./npmpackage && shx cp -r ./dist/src/* ./npmpackage",
+    "copy-files-npmpackage": "mkdirp ./npmpackage/bin && shx cp -r ./package.json ./README.md ./LICENSE.txt ./npmpackage && shx cp ./src/msa ./npmpackage/bin/msa",
+    "build-npmpackage": "npm-run-all rebuild copy-src-npmpackage copy-compiled-src-npmpackage copy-files-npmpackage"
   },
   "author": "",
-  "license": "ISC"
+  "license": "MIT",
+  "bin": {
+    "msa": "bin/msa"
+  }
 }

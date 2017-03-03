@@ -3,12 +3,25 @@
 /// <reference path="./../dist/src/s.d.ts" />
 
 
+var db = new Mongo("localhost:27017").getDB("test2");
+var configs = db.configs.find({}, {}).limit(10).toArray();
+print(db.getCollectionNames());
+print(s.dump(configs));
+
 // use reference paths manually or remove tsconfig.json to turn on intellisense
 
 var users = [
         { login: "john", roles: ["admin"] },
         { login: "steve", roles: ["editor"] },
 ];
+var multimedia = [
+        { name: "flower.jpg", size: 100, type: "image", imageWidth: 50, imageHeight: 5 },
+        { name: "presentation.mp4", size: 100000, type: "video", duration: 60 },
+        { name: "mydoc.pdf", size: 150, type: "document" }
+];
+
+
+
 
 
 load("dist/src/s.js");
