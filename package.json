@@ -27,7 +27,8 @@
     "copy-src-npmpackage": "mkdirp ./npmpackage/src/ && shx cp -r ./src/* ./npmpackage/src",
     "copy-compiled-src-npmpackage": "mkdirp ./npmpackage && shx cp -r ./dist/src/* ./npmpackage",
     "copy-files-npmpackage": "mkdirp ./npmpackage/bin && shx cp -r ./package.json ./README.md ./LICENSE.txt ./npmpackage && shx cp ./src/msa ./npmpackage/bin/msa",
-    "build-npmpackage": "npm-run-all rebuild copy-src-npmpackage copy-compiled-src-npmpackage copy-files-npmpackage"
+    "build-npmpackage": "npm-run-all rebuild copy-src-npmpackage copy-compiled-src-npmpackage copy-files-npmpackage",
+    "msa": " echo \" to test msa tool call this: --->>>    node -e \\\"require('../../dist/src/msa.js').msa();\\\" \""
   },
   "author": "",
   "license": "MIT",

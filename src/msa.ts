@@ -24,7 +24,11 @@ export async function generateMetadata() {
         let configFileContent = await p<string>(c => fs.readFile(configFileName, "utf-8", c));
         let config: Config = JSON.parse(configFileContent);
         let generatedTsDeclarations = await generateTsDeclarations(config);
-        let mongoShellTsDeclarations = await await p<string>(c => fs.readFile(join(__dirname, "./src/mongoShell.d.ts"), "utf-8", c));
+        let mongoShellDTsFilePath = Enumerable
+            .of("./src/mongoShell.d.ts", "../../src/mongoShell.d.ts")
+            .map(pf => join(__dirname, pf))
+            .find(fs.existsSync);
+        let mongoShellTsDeclarations = await p<string>(c => fs.readFile(mongoShellDTsFilePath, "utf-8", c));
 
         p(c => fs.writeFile(metadataFileName, mongoShellTsDeclarations + EOL + generatedTsDeclarations, c));
 
@@ -41,7 +45,7 @@ export async function generateMetadata() {
             code = `var db = new Mongo("${firstDatabase.serverName}").getDB("${firstDatabase.databaseName}");
 print(db.getCollectionNames());
 //var data = db.__collection1__.find({}, {}).limit(10).toArray();
-//print(s.dump(data));
+//printjson(data);
 `;
         }
 
@@ -50,12 +54,14 @@ print(db.getCollectionNames());
 Add lines below at the beginning of you mongo shell script file:
 
 /// <reference path="./${metadataFileName}" />
-/// <reference path="./node_modules/mongo-shell-assistant/s.d.ts" />
-load("node_modules/mongo-shell-assistant/s.js");
 ${code}
 `);
     }
 }
+
+// /// <reference path="./node_modules/mongo-shell-assistant/s.d.ts" />
+// load("node_modules/mongo-shell-assistant/s.js");
+
 
 
 function getDefaultConfig(): Config {

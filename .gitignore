@@ -3,3 +3,5 @@
 /npm-debug.log*
 /dist/
 /npmpackage/
+msa.config.json
+msa.metadata.d.ts

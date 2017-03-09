@@ -1,4 +1,10 @@
-// todo: dla userow trzeba pobrac wiecej elementow ale dobrac sie do profili, tylko ile i ktorych?? moze mozliwosc wskazania pol ktore dokumento musi posiadac np containsFields = ["patientProfile", "doctorPofile"] ... moze jakos odawa filtr ale ile elemento minimalnie brac ?
+-  todo:
+-- generate default JSON document for each collection as a comment
+-- mongoDB shell API for objects: Database, Mongo
+-- add option "optionalButRequiredFields", maybe "query"
+
+
+
 
 - extracting metada from mongo db
 -- https://github.com/variety/variety A schema analyzer for MongoDB
@@ -24,18 +30,11 @@ ttps://github.com/mongodb/docs/blob/a1ffe539ce7431fff757539713af079baf06d400/sou
 - tez jakis prosty opis metod mozna sobie wygenerowac w konsoli db.users.help()
 
 
-
-
-
-
-
 fajne bo:
 - mam intellise (kurde, jak te metody sie nazywaly) i typowalnosc (duzo szybciej sie pisze niz kopoiwania elementow konsoli) w mongo shell
 - mam duzy wygodniejszy REPL (bardziej SQL lub F# interactive), mam zachowany stan i moge pisac kolejne zapytania 
 - moge pisac wygodnie skrypty JS (z intellisense) ktore moge ladowac np mam prezentacje danych jako GRID
 - moge sie laczyc jednoczesniej do kilku baz danych czy wielu kolekcji 
-
-
 
 
 do pomyslenia:
@@ -57,10 +56,3 @@ generowanie TS z opisu schemat JSON, byc moze taka uniwresjalnosc moglaby byc wk
 
 
 
-
-/// <references path="./_mongoShell.d.ts" />
-
-/// <references path="./_documents.generated.d.ts" />
-/// <references path="./_collections.d.ts" />
-/// <references path="./s.d.ts" />
-/// <references path="./s.generated.d.ts" />
