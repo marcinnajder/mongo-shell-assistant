@@ -81,6 +81,7 @@ Change configuration settings accordingly
 		]
 	}
 }
+```
 
 And once again execute `msa` tool from terminal
 
@@ -103,7 +104,9 @@ print(db.getCollectionNames());
 //print(s.dump(data));
 ```
 
-`msa.metadata.d.ts` TypeScript declaration file has been created. Create MongoDb shell script called `script.js` and copy the above code into this file.
+`msa.metadata.d.ts` TypeScript declaration file has been created.
+
+Create MongoDb shell script called `script.js` and copy the above code into this file.
 
 ```JavaScript
 /// <reference path="./msa.metadata.d.ts" />
@@ -126,6 +129,12 @@ multimedia,users
 ```
 
 ## intellisense and autocompletion
+
+<video width="320" height="240" controls>
+  <source src="https://github.com/marcinnajder/mongo-shell-assistant/tree/master/samples/demo/msa_demo.mp4" type="video/mp4">  
+Your browser does not support the video tag.
+</video>
+
 
 ## interactive REPL inside Visual Studio Code
 
