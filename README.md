@@ -130,4 +130,4 @@ multimedia,users
 
 ## intellisense and interactive REPL inside Visual Studio Code
 
-![](https://raw.githubusercontent.com/marcinnajder/mongo-shell-assistant/master/samples/demo/msa_demo_6.gif)
+![](https://raw.githubusercontent.com/marcinnajder/mongo-shell-assistant/master/samples/demo/msa_demo_6__.gif)
