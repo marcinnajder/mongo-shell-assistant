@@ -128,10 +128,6 @@ connecting to: test
 multimedia,users
 ```
 
-## intellisense and autocompletion
+## intellisense and interactive REPL inside Visual Studio Code
 
 [Screencapture GIF](https://github.com/marcinnajder/mongo-shell-assistant/tree/master/samples/demo/msa_demo_6.gif)
-
-
-## interactive REPL inside Visual Studio Code
-
