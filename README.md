@@ -1,5 +1,5 @@
 
-[installation and setting up](#installation-and-setting-up) | [configuration](#configuration) | [intellisense and interactive REPL in Visual Studio Code](intellisense-and-interactive-REPL-in-Visual-Studio-Code)
+[installation and setting up](#installation-and-setting-up) | [configuration](#configuration) | [intellisense and interactive REPL in Visual Studio Code](#intellisense-and-interactive-REPL-in-Visual-Studio-Code)
 
 MongoDB shell assistant (msa) is a very simple command line tool that helps writing MongoDB shell scripts. It connects to MongoDB database and gets some sample data from each collection. Based on that it generates TypeScript declaration file describing a database schema. So even if you write your MongoDB shell script in JavaScript you can still benefit from having intellisense and autocompletion, not only for MongoDB shell API but also for structure of a data. Visual Studio Code has a very good support for JavaScript and TypeScript so it's prefered code editor here.
 
