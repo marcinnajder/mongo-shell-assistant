@@ -1,5 +1,5 @@
 
-[installation and setting up](#installation-and-setting-up) | [configuration](#configurations)
+[installation and setting up](#installation-and-setting-up) | [configuration](#configuration) | [intellisense and interactive REPL in Visual Studio Code](intellisense-and-interactive-REPL-in-Visual-Studio-Code)
 
 MongoDB shell assistant (msa) is a very simple command line tool that helps writing MongoDB shell scripts. It connects to MongoDB database and gets some sample data from each collection. Based on that it generates TypeScript declaration file describing a database schema. So even if you write your MongoDB shell script in JavaScript you can still benefit from having intellisense and autocompletion, not only for MongoDB shell API but also for structure of a data. Visual Studio Code has a very good support for JavaScript and TypeScript so it's prefered code editor here.
 
@@ -26,7 +26,7 @@ msasampledb.multimedia.insertMany(multimedia);
 msasampledb.copyDatabase("msasample", "msasamplecopy");
 ```
 
-Install `msa` tool globally
+Then install `msa` tool globally
 
 ```bash
 npm install -g mongo-shell-assistant
@@ -42,7 +42,7 @@ Execute `msa` command from terminal
 'msa.config.json' file with sample configuration has been created.
 ```
 
-Because there is no configuration files inside current directory yet, the default one is created
+Because there is no configuration file inside current directory yet, the default one is created
 
 ```JavaScript
 {
@@ -65,7 +65,7 @@ Because there is no configuration files inside current directory yet, the defaul
 }
 ```
 
-Change configuration settings accordingly
+Change configuration settings accordingly to our sample database
 
 ```JavaScript
 {
@@ -83,7 +83,7 @@ Change configuration settings accordingly
 }
 ```
 
-And once again execute `msa` tool from terminal
+And once again, execute `msa` tool from terminal
 
 ```bash
 > msa
@@ -106,7 +106,7 @@ print(db.getCollectionNames());
 
 `msa.metadata.d.ts` TypeScript declaration file has been created.
 
-Create MongoDb shell script called `script.js` and copy the above code into this file.
+Create a new MongoDb shell script `script.js` and copy the code above
 
 ```JavaScript
 /// <reference path="./msa.metadata.d.ts" />
@@ -118,8 +118,7 @@ print(db.getCollectionNames());
 //print(s.dump(data));
 ```
 
-
-Execute script `mongo script.js`
+Then run this script executing command `mongo script.js`
 
 ```bash
 > mongo script.js
@@ -128,6 +127,8 @@ connecting to: test
 multimedia,users
 ```
 
-## intellisense and interactive REPL inside Visual Studio Code
+## intellisense and interactive REPL in Visual Studio Code
+
+Mongo shell assistant provides an intellisense in a variety of different places, for intance a description of Mongo shell API, names of servers/databases/collections, query or projection objects used with querying methods like `find` or `findOne`, schema of documents returned from the database. Visual Studio Code has an integrated terminal window so we can open any REPL tool (for instance Mongo DB shell) and send selected pieces of text directly into opened terminal. Check out demo below to see how nice we can interact with MongoDB database. 
 
 ![](https://raw.githubusercontent.com/marcinnajder/mongo-shell-assistant/master/samples/demo/msa_demo_6__.gif)
