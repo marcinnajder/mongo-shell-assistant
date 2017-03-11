@@ -30,9 +30,16 @@
     "build-npmpackage": "npm-run-all rebuild copy-src-npmpackage copy-compiled-src-npmpackage copy-files-npmpackage",
     "msa": " echo \" to test msa tool call this: --->>>    node -e \\\"require('../../dist/src/msa.js').msa();\\\" \""
   },
-  "author": "",
+  "author": "Marcin Najder <marcin.najder@gmail.com>",
   "license": "MIT",
   "bin": {
     "msa": "bin/msa"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:marcinnajder/mongo-shell-assistant"
+  },
+  "bugs": {
+    "url": "https://github.com/marcinnajder/mongo-shell-assistant/issues"
   }
 }
