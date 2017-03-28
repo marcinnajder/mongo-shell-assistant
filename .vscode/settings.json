@@ -6,6 +6,6 @@
         "**/.hg": true,
         "**/.DS_Store": true
     },
-    "editor.formatOnSave": false,
+    "editor.formatOnSave": true,
     "tslint.enable": false
 }
