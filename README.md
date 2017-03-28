@@ -95,13 +95,12 @@ values of 'multimedia.type' discriminator: image,video,document
 'msa.metadata.d.ts' file has been generated.
 Add lines below at the beginning of you mongo shell script file:
 
+
 /// <reference path="./msa.metadata.d.ts" />
-/// <reference path="./node_modules/mongo-shell-assistant/s.d.ts" />
-load("node_modules/mongo-shell-assistant/s.js");
 var db = new Mongo("localhost:27017").getDB("msasample");
 print(db.getCollectionNames());
 //var data = db.__collection1__.find({}, {}).limit(10).toArray();
-//print(s.dump(data));
+//printjson(data);
 ```
 
 `msa.metadata.d.ts` TypeScript declaration file has been created.
@@ -110,12 +109,10 @@ Create a new MongoDb shell script `script.js` and copy the code above
 
 ```JavaScript
 /// <reference path="./msa.metadata.d.ts" />
-/// <reference path="./node_modules/mongo-shell-assistant/s.d.ts" />
-load("node_modules/mongo-shell-assistant/s.js");
 var db = new Mongo("localhost:27017").getDB("msasample");
 print(db.getCollectionNames());
 //var data = db.__collection1__.find({}, {}).limit(10).toArray();
-//print(s.dump(data));
+//printjson(data);
 ```
 
 Then run this script executing command `mongo script.js`
