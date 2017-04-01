@@ -1,6 +1,5 @@
 /// <references path="./_all.d.ts" />
 
-
 //https://github.com/Microsoft/TypeScript/pull/12114
 //https://github.com/Microsoft/TypeScript/pull/11929
 declare function load(scriptFilePath: string);
@@ -9,8 +8,6 @@ declare function load(scriptFilePath: string);
 /** @param databaseAddress for sample "localhost:27020/myDatabase" */
 declare function connect(databaseAddress: string): Db;
 declare function printjson(obj);
-
-
 declare var Mongo: Mongo;
 
 declare interface Mongo {
@@ -19,12 +16,9 @@ declare interface Mongo {
     /** @param host "host:port?" */
     new (host: string): Mongo;
 
-
-
     /**
      * Provides access to database objects from the mongo shell or from a JavaScript file.
      * @param databaseName The name of the database to access.
-     * 
      * https://docs.mongodb.com/manual/reference/method/Mongo.getDB/#Mongo.getDB 
      * */
     getDB(databaseName: string): Db;
@@ -32,80 +26,212 @@ declare interface Mongo {
 
 
 declare interface Db {
-
-    /**     
-     * Returns a collection object that is functionally equivalent to using the db.<collectionName> syntax. The method is useful for a collection whose name might interact with the shell itself, such as names that begin with _ or that match a database shell method.
-     * https://docs.mongodb.com/manual/reference/method/db.getCollection/#db.getCollection
-     * @param name 	The name of the collection.
-     * 
-    */
-    getCollection(name: string): Collection_<any, any>;
-
+    /**
+     * Provides a helper to run specified database commands against the admin database. 
+     * info https://docs.mongodb.com/manual/reference/command/
+     */
+    adminCommand(command: string | any): any;
+    /**
+     * Copies data directly between MongoDB instances 
+     */
+    cloneCollection(from: string, collection: string, query?: any): void;
     /**
      * Copies a remote database to the current database. The command assumes that the remote database has the same name as the current database.
      * @param hostname 	The hostname of the database to copy.
      */
     cloneDatabase(hostname: string): void;
     /**
-     * Removes the current database, deleting the associated data files.
-     * https://docs.mongodb.com/manual/reference/method/db.dropDatabase/#db.dropDatabase 
+     * Displays help text for the specified database command.
+     * info https://docs.mongodb.com/manual/reference/command/
+     */
+    commandHelp(command: string): void;
+    /**
+     * Copies a database to another database on the current host. Wraps copydb. 
+     */
+    copyDatabase(fromdb: string, todb: string, fromhost?: string, username?: string, password?: string, mechanism?: string): void;
+    /**
+     * Creates a new collection. Commonly used to create a capped collection. 
+     * */
+    createCollection(name: string, options?: CreateCollectionOptions): WriteResult;
+    /**
+     * Creates a view as the result of the applying the specified aggregation pipeline to the source collection or view. 
+     */
+    createView(view: string, source: string, pipeline: any[], options?: any): void;
+    /**
+     * Returns a document that contains information on in-progress operations for the database instance. 
+     * todo: https://docs.mongodb.com/manual/reference/method/db.currentOp/#db.currentOp
+     * */
+    currentOp(operations: boolean | any): any;
+    /**
+     * Removes the current database, deleting the associated data files.     
      */
     dropDatabase(): void;
     /**
-     * Displays help text for the specified database command. See the Database Commands. 
-     * @param command The name of a database command.
-    */
-    commandHelp(command: string): void;
-    /** *Copies a database to another database on the current host. Wraps copydb. */
-    copyDatabase(fromdb: string, todb: string, fromhost?: string, username?: string, password?: string, mechanism?: string): void;
-
-    /**Creates a new collection. Commonly used to create a capped collection. */
-    createCollection(name: string, options?: CreateCollectionOptions): WriteResult;
-
-    /**
-     * Returns the name of the current database.
-     * https://docs.mongodb.com/manual/reference/method/db.getName/#db.getName
+     * Provides the ability to run JavaScript code on the MongoDB server.
+     * Deprecated since version 3.0.
      */
-    getName(): string;
-
-    /**show dbs, show databases */
-    adminCommand(command: "listDatabases"): DatabasesInfo;
-
+    eval(function_: Function, ...arguments: any[]): any;
     /**
-     * Returns an array containing the names of all collections in the current database.
-     * https://docs.mongodb.com/manual/reference/method/db.getCollectionNames/
+     * 	Flushes writes to disk and locks the database to prevent write operations and assist backup operations. Wraps fsync.
+     */
+    fsyncLock(): void;
+    /**
+     * Allows writes to continue on a database locked with db.fsyncLock().
+     */
+    fsyncUnlock(): void;
+    /**     
+     * Returns a collection object that is functionally equivalent to using the db.<collectionName> syntax. The method is useful for a collection whose name might interact with the shell itself, such as names that begin with _ or that match a database shell method.
+     * @param name 	The name of the collection.
+    */
+    getCollection(name: string): Collection_<any, any>;
+    /**     
+      * Returns an array of documents with collection or view information, such as name and options, for the current database.
+     */
+    getCollectionInfos(collectionName?: { name: string }): { name: string; options: any; }[];
+    /**
+     * Returns an array containing the names of all collections in the current database.    
      */
     getCollectionNames(): string[];
-
-
+    /**
+     * Checks and returns the status of the last operation. Wraps getLastError.
+     * todo: https://docs.mongodb.com/manual/reference/command/getLastError/#getLastError.err
+     */
+    getLastError(w?: number | string, wtimeout?: number): any;
+    /**
+     * Returns the status document for the last operation. Wraps getLastError.
+     */
+    getLastErrorObj(key?: number | string, wtimeout?: number): any;
+    /**
+     * Returns the log message verbosity levels.
+     */
+    getLogComponents(): any;
+    /**
+     * 	Returns the Mongo() connection object for the current connection.
+     */
+    getMongo(): Mongo;
+    /**
+     * 	Returns the name of the current database.
+     */
+    getName(): string;
+    /**
+     * Returns a status document containing all errors since the last error reset. Wraps getPrevError.
+     */
+    getPrevError(): any;
+    /**
+     * This method provides a wrapper around the database command “profile” and returns the current profiling level. Deprecated since version 1.8.4: Use db.getProfilingStatus() for related functionality.
+     */
+    getProfilingLevel(): any;
+    /**
+     * Returns a document that reflects the current profiling level and the profiling threshold.
+     */
+    getProfilingStatus(): any;
+    /**
+     * Returns a document with replication statistics.    
+     * todo:https://docs.mongodb.com/manual/reference/method/db.getReplicationInfo/#db.getReplicationInfo
+     */
+    getReplicationInfo(): any;
     /**
      * Provides access to the specified database.
-     * https://docs.mongodb.com/manual/reference/method/db.getSiblingDB/#db.getSiblingDB
      * @param database	The name of a MongoDB database. 
      */
     getSiblingDB(database: string): Db;
-    // getSiblingDB(databaseName:"test2"):Test2_Db;
-
-
-    getUsers();
-
-    //     db.adminCommand('listDatabases')
-    // use <db>	
-    // db = db.getSiblingDB('<db>')
-
-    // show users	
-    // db.getUsers()
-    // show roles	
-    // db.getRoles({showBuiltinRoles: true})
-    // show log <logname>	
-    // db.adminCommand({ 'getLog' : '<logname>' })
-    // show logs	
-    // db.adminCommand({ 'getLog' : '*' })
-    // it	
-    // cursor = db.collection.find()
-    // if ( cursor.hasNext() ){
-    //    cursor.next();
-    // }
+    /**
+     * Displays descriptions of common db object methods. 
+     * */
+    help(): void;
+    /**
+     * Returns a document with information about the system MongoDB runs on. Wraps hostInfo
+     */
+    hostInfo(): any;
+    /**
+     * Returns a document that reports the state of the replica set.
+     */
+    isMaster(): any;
+    /**
+     * Terminates an operation as specified by the operation ID 
+     * */
+    killOp(opid: number): void;
+    /**
+     * Displays a list of common database commands. 
+     * */
+    listCommands(): void;
+    /**
+     * 	Loads all scripts in the system.js collection for the current database into the shell session.
+     */
+    loadServerScripts();
+    /**
+     * Ends an authenticated session.
+     */
+    logout(): void;
+    /**
+     * Prints statistics from every collection. Wraps db.collection.stats()
+     */
+    printCollectionStats(): void;
+    /**
+     * Prints a report of the status of the replica set from the perspective of the primary. 
+     * */
+    printReplicationInfo(): void;
+    /**
+     * Prints a report of the sharding configuration and the chunk ranges.
+     */
+    printShardingStatus(): void;
+    /**	
+     * Prints a report of the status of the replica set from the perspective of the secondaries. 
+     * */
+    printSlaveReplicationInfo(): void;
+    /**
+     * Runs a repair routine on the current database.
+     */
+    repairDatabase(): void;
+    /**
+     * Resets the error message returned by db.getPrevError() and getPrevError. 
+     * */
+    resetError(): void;
+    /**
+     * Provides a helper to run specified database commands. This is the preferred method to issue database commands, as it provides a consistent interface between the shell and drivers.
+     * https://docs.mongodb.com/manual/reference/command/
+     * */
+    runCommand(command: string | any): void;
+    /**
+     * Returns a document that displays the compilation parameters for the mongod instance. Wraps buildinfo.
+     */
+    serverBuildInfo(): any;
+    /**
+     * Returns a document with information about the runtime used to start the MongoDB instance. Wraps getCmdLineOpts.
+     */
+    serverCmdLineOpts(): any;
+    /**
+     * 	Returns a document that provides an overview of the state of the database process.
+     */
+    serverStatus(): any;
+    /**
+     * 	Sets a single log message verbosity level.
+     */
+    setLogLevel(): any;
+    /**	
+     * Modifies the current level of database profiling. 
+     * */
+    setProfilingLevel(level: number, slowms: number): void;
+    /**
+     * Shuts down the current mongod or mongos process cleanly and safely.
+     */
+    shutdownServer(): void;
+    /**
+     * Returns a document that reports on the state of the current database. 
+     * */
+    stats(scale?: number): any;
+    /**
+     * Returns the version of the mongod instance.
+     */
+    version(): string;
+    /**
+     * Performs a preliminary check for upgrade preparedness for a specific database or collection.
+     */
+    upgradeCheck(scope?: any): void;
+    /**
+     * Performs a preliminary check for upgrade preparedness for all databases and collections.
+     */
+    upgradeCheckAllDBs(): void;
 }
 
 
@@ -673,63 +799,3 @@ declare interface DatabasesInfo {
     totalSize: number;
     ok: number;
 }
-
-
-
-
-// declare interface MongoInterface{
-//     new() : MongoInterface;
-//     /**
-//      * @param host "host:port?"
-//      */
-//     new(host:string) : MongoInterface;
-// }
-
-//declare var Mongo : MongoInterface;
-
-
-// db.help()                    help on db methods
-// db.mycoll.help()             help on collection methods
-// sh.help()                    sharding helpers
-// rs.help()                    replica set helpers
-// help admin                   administrative help
-// help connect                 connecting to a db help
-// help keys                    key shortcuts
-// // help misc                    misc things to know
-// // help mr                      mapreduce
-
-// // show dbs                     show database names
-// // show collections             show collections in current database
-// // show users                   show users in current database
-// // show profile                 show most recent system.profile entries with time >= 1ms
-// // show logs                    show the accessible logger names
-// // show log [name]              prints out the last segment of log in memory, 'global' is default
-// // use <db_name>                set current database
-// // db.foo.find()                list objects in collection foo
-// // db.foo.find( { a : 1 } )     list objects in foo where a == 1
-// // it                           result of the last line evaluated; use to further iterate
-// // DBQuery.shellBatchSize = x   set default number of items to display on shell
-// // exit                         quit the mongo shell
-
-
-// /** To display the database you are using */
-// declare var db;
-
-
-
-// /**use <db_name> set current database */ 
-// declare var use;
-// /** quit the mongo shell */
-// declare var exit;
-
-
-
-
-
-
-
-
-
-
-
-
