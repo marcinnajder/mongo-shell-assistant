@@ -38,11 +38,11 @@ Execute `msa` command from terminal
 
 ```bash
 > msa
-'msa.config.json' configuration file not.
+'msa.config.json' configuration file does not exist.
 'msa.config.json' file with sample configuration has been created.
 ```
 
-Because there is no configuration file inside current directory yet, the default one is created
+Because there is no configuration file inside current directory yet a default one is created
 
 ```JavaScript
 {
@@ -65,7 +65,7 @@ Because there is no configuration file inside current directory yet, the default
 }
 ```
 
-Change configuration settings accordingly to our sample database
+Change configuration settings to point to our sample database
 
 ```JavaScript
 {
@@ -126,6 +126,13 @@ multimedia,users
 
 ## intellisense and interactive REPL in Visual Studio Code
 
-Mongo shell assistant provides an intellisense in a variety of different places, for intance a description of Mongo shell API, names of servers/databases/collections, query or projection objects used with querying methods like `find` or `findOne`, schema of documents returned from the database. Visual Studio Code has an integrated terminal window so we can open any REPL tool (for instance Mongo DB shell) and send selected pieces of text directly into opened terminal. Check out demo below to see how nice we can interact with MongoDB database. 
+Mongo shell assistant provides intellisense in a variety of different places, including:
+
+* a description of a Mongo shell API, 
+* names of servers/databases/collections, 
+* query or projection objects used with querying methods like `find` or `findOne` and 
+* schema of documents returned from the database. 
+
+Visual Studio Code has an integrated terminal window so we can open any REPL tool (for instance Mongo DB shell) and send selected pieces of text directly into opened terminal. Check out demo below to see how easy it is to interact with your MongoDB database. 
 
 ![](https://raw.githubusercontent.com/marcinnajder/mongo-shell-assistant/master/samples/demo/msa_demo_6__.gif)
