@@ -1,4 +1,10 @@
 
+<a name="0.0.5"></a>
+# [0.0.5](https://github.com/marcinnajder/mongo-shell-assistant/releases/tag/0.0.5) (2017-04-06)
+
+* add support for flatten object and arrays of simple types inside s.dump method
+* add "results pretty printing" section to readme.md
+
 <a name="0.0.4"></a>
 # [0.0.4](https://github.com/marcinnajder/mongo-shell-assistant/releases/tag/0.0.4) (2017-04-01)
 

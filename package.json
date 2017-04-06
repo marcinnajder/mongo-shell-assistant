@@ -1,6 +1,6 @@
 {
   "name": "mongo-shell-assistant",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Assists in writing mongo shell scripts.",
   "dependencies": {
     "mongodb": "^2.2.22",
