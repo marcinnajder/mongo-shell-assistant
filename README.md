@@ -142,7 +142,7 @@ Visual Studio Code has an integrated terminal window so we can open any REPL too
 
 Mongo shell assistant node module provides simple helper method called `s.dump(obj)`. Any JavaScript object (in most cases it's an array of objects returned from the database) can be passed as argument and pretty table representation will be generated.
 
-Install mongo shell assistant module locally to have a easy access to `s.js` file then load this file into mongo shell script using `load("s.js")` method.
+Install mongo shell assistant module locally to have easy access to `s.js` file then load this file into mongo shell script using `load("s.js")` method.
 
 
 ```JavaScript
